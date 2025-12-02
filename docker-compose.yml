@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+
+  platform-service:
+    build: ./apps/platform
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - RENTAL_SERVICE_URL=http://rental-service:3001
+      - VEHICLES_SERVICE_URL=http://vehicles-service:3002
+      - SCHEDULER_INTERVAL=5000
+    depends_on:
+      - rental-service
+      - vehicles-service
+
+  rental-service:
+    build: ./apps/rental
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+
+  vehicles-service:
+    build: ./apps/vehicles
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
