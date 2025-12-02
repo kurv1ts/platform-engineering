@@ -1,23 +1,42 @@
 import express, { Request, Response } from 'express';
 import winston from 'winston';
-import client from 'prom-client';
 import axios from 'axios';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import * as api from '@opentelemetry/api';
 
-// --- Tracing Setup ---
-const openTelemetry = new NodeSDK({
-    resource: resourceFromAttributes({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'platform-service',
-    }),
-    traceExporter: new ConsoleSpanExporter(),
-    instrumentations: [getNodeAutoInstrumentations()],
+// --- Metrics Setup (Prometheus Exporter) ---
+const prometheusExporter = new PrometheusExporter({
+    port: 9464,
+}, () => {
+    console.log('Prometheus scrape endpoint: http://localhost:9464/metrics');
 });
 
-openTelemetry.start();
+// --- OpenTelemetry SDK with both Tracing and Metrics ---
+const sdk = new NodeSDK({
+    traceExporter: new ConsoleSpanExporter(),
+    metricReader: prometheusExporter,
+    instrumentations: [getNodeAutoInstrumentations()],
+    serviceName: 'platform-service',
+});
+
+sdk.start();
+
+// Get meter for custom metrics
+const meter = api.metrics.getMeter('platform-service');
+
+// Custom counter for HTTP requests
+const httpRequestCounter = meter.createCounter('http_requests_total', {
+    description: 'Total number of HTTP requests',
+});
+
+// Custom histogram for HTTP request duration
+const httpRequestDuration = meter.createHistogram('http_request_duration_ms', {
+    description: 'HTTP request duration in milliseconds',
+    unit: 'ms',
+});
 
 // --- Logger Setup ---
 const logger = winston.createLogger({
@@ -31,16 +50,12 @@ const logger = winston.createLogger({
     ],
 });
 
-// --- Metrics Setup ---
-const collectDefaultMetrics = client.collectDefaultMetrics;
-collectDefaultMetrics({ prefix: 'platform_' });
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 7000;
 
 // Configurable URLs
-const RENTAL_SERVICE_URL = process.env.RENTAL_SERVICE_URL || 'http://localhost:3001';
-const VEHICLES_SERVICE_URL = process.env.VEHICLES_SERVICE_URL || 'http://localhost:3002';
+const RENTAL_SERVICE_URL = process.env.RENTAL_SERVICE_URL || 'http://localhost:7001';
+const VEHICLES_SERVICE_URL = process.env.VEHICLES_SERVICE_URL || 'http://localhost:7002';
 
 // --- Endpoints ---
 
@@ -48,13 +63,31 @@ app.get('/health', (req: Request, res: Response) => {
     res.status(200).send('OK');
 });
 
-app.get('/metrics', async (req: Request, res: Response) => {
-    try {
-        res.set('Content-Type', client.register.contentType);
-        res.end(await client.register.metrics());
-    } catch (ex) {
-        res.status(500).end(ex);
-    }
+// Middleware to track requests and duration
+app.use((req: Request, res: Response, next) => {
+    if (req.path === '/metrics') return next();
+
+    const startTime = Date.now();
+
+    res.on('finish', () => {
+        const duration = Date.now() - startTime;
+
+        // Record counter
+        httpRequestCounter.add(1, {
+            method: req.method,
+            route: req.path,
+            status: res.statusCode.toString(),
+        });
+
+        // Record duration
+        httpRequestDuration.record(duration, {
+            method: req.method,
+            route: req.path,
+            status: res.statusCode.toString(),
+        });
+    });
+
+    next();
 });
 
 // --- Scheduler ---
@@ -108,8 +141,8 @@ app.listen(PORT, () => {
 });
 
 process.on('SIGTERM', () => {
-    openTelemetry.shutdown()
-        .then(() => console.log('Tracing terminated'))
-        .catch((error) => console.log('Error terminating tracing', error))
+    sdk.shutdown()
+        .then(() => console.log('OpenTelemetry SDK terminated'))
+        .catch((error) => console.log('Error terminating SDK', error))
         .finally(() => process.exit(0));
 });
