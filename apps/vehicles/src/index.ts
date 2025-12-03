@@ -1,22 +1,41 @@
 import express, { Request, Response, NextFunction } from 'express';
 import winston from 'winston';
-import client from 'prom-client';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import * as api from '@opentelemetry/api';
 
-// --- Tracing Setup ---
-const openTelemetry = new NodeSDK({
-    resource: resourceFromAttributes({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'vehicles-service',
-    }),
-    traceExporter: new ConsoleSpanExporter(),
-    instrumentations: [getNodeAutoInstrumentations()],
+// --- Metrics Setup (Prometheus Exporter) ---
+const prometheusExporter = new PrometheusExporter({
+    port: 9466,
+}, () => {
+    console.log('Prometheus scrape endpoint: http://localhost:9466/metrics');
 });
 
-openTelemetry.start();
+// --- OpenTelemetry SDK with both Tracing and Metrics ---
+const sdk = new NodeSDK({
+    traceExporter: new ConsoleSpanExporter(),
+    metricReader: prometheusExporter,
+    instrumentations: [getNodeAutoInstrumentations()],
+    serviceName: 'vehicles-service',
+});
+
+sdk.start();
+
+// Get meter for custom metrics
+const meter = api.metrics.getMeter('vehicles-service');
+
+// Custom counter for HTTP requests
+const httpRequestCounter = meter.createCounter('http_requests_total', {
+    description: 'Total number of HTTP requests',
+});
+
+// Custom histogram for HTTP request duration
+const httpRequestDuration = meter.createHistogram('http_request_duration_ms', {
+    description: 'HTTP request duration in milliseconds',
+    unit: 'ms',
+});
 
 // --- Logger Setup ---
 const logger = winston.createLogger({
@@ -30,14 +49,64 @@ const logger = winston.createLogger({
     ],
 });
 
-// --- Metrics Setup ---
-const collectDefaultMetrics = client.collectDefaultMetrics;
-collectDefaultMetrics({ prefix: 'vehicles_' });
-
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 7002;
 
 app.use(express.json());
+
+// --- In-Memory State ---
+interface Vehicle {
+    id: number;
+    status: string;
+    coordinates: {
+        lat: number;
+        lng: number;
+    };
+}
+
+// Generate some dummy vehicles
+const vehicles: Vehicle[] = Array.from({ length: 100 }, (_, i) => ({
+    id: i,
+    status: Math.random() > 0.5 ? 'available' : 'rented',
+    coordinates: {
+        lat: 52.5200 + (Math.random() - 0.5) * 0.1,
+        lng: 13.4050 + (Math.random() - 0.5) * 0.1,
+    },
+}));
+
+// --- Endpoints ---
+
+app.get('/health', (req: Request, res: Response) => {
+    res.status(200).send('OK');
+});
+
+// Middleware to track requests and duration
+app.use((req: Request, res: Response, next) => {
+    if (req.path === '/metrics') return next();
+
+    const startTime = Date.now();
+
+    res.on('finish', () => {
+        const duration = Date.now() - startTime;
+
+        // Record counter
+        httpRequestCounter.add(1, {
+            method: req.method,
+            route: req.path,
+            status: res.statusCode.toString(),
+        });
+
+        // Record duration
+        httpRequestDuration.record(duration, {
+            method: req.method,
+            route: req.path,
+            status: res.statusCode.toString(),
+        });
+    });
+
+    next();
+});
+
 
 // --- Chaos Configuration ---
 interface ChaosConfig {
@@ -76,37 +145,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-// --- In-Memory State ---
-interface Vehicle {
-    id: number;
-    status: string;
-    coordinates: {
-        lat: number;
-        lng: number;
-    };
-}
-
-// Generate some dummy vehicles
-const vehicles: Vehicle[] = Array.from({ length: 100 }, (_, i) => ({
-    id: i,
-    status: Math.random() > 0.5 ? 'available' : 'rented',
-    coordinates: {
-        lat: 52.5200 + (Math.random() - 0.5) * 0.1,
-        lng: 13.4050 + (Math.random() - 0.5) * 0.1,
-    },
-}));
-
-// --- Endpoints ---
-
-app.get('/metrics', async (req: Request, res: Response) => {
-    try {
-        res.set('Content-Type', client.register.contentType);
-        res.end(await client.register.metrics());
-    } catch (ex) {
-        res.status(500).end(ex);
-    }
-});
-
 app.post('/config', (req: Request, res: Response) => {
     const { errorRate, latencyMax } = req.body;
     if (typeof errorRate === 'number') config.errorRate = errorRate;
@@ -134,8 +172,8 @@ app.listen(PORT, () => {
 });
 
 process.on('SIGTERM', () => {
-    openTelemetry.shutdown()
-        .then(() => console.log('Tracing terminated'))
-        .catch((error) => console.log('Error terminating tracing', error))
+    sdk.shutdown()
+        .then(() => console.log('OpenTelemetry SDK terminated'))
+        .catch((error) => console.log('Error terminating SDK', error))
         .finally(() => process.exit(0));
 });

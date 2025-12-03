@@ -13,31 +13,63 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - general-network
+    restart: unless-stopped
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v3.8.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - general-network
+    restart: unless-stopped
 
 
   platform-service:
     build: ./apps/platform
     ports:
-      - "3000:3000"
+      - "7000:7000"
+      - "9464:9464"
     environment:
-      - PORT=3000
-      - RENTAL_SERVICE_URL=http://rental-service:3001
-      - VEHICLES_SERVICE_URL=http://vehicles-service:3002
+      - PORT=7000
+      - RENTAL_SERVICE_URL=http://rental-service:7001
+      - VEHICLES_SERVICE_URL=http://vehicles-service:7002
       - SCHEDULER_INTERVAL=5000
+    networks:
+      - general-network
     depends_on:
       - rental-service
       - vehicles-service
+    restart: unless-stopped
 
   rental-service:
     build: ./apps/rental
     ports:
-      - "3001:3001"
+      - "7001:7001"
+      - "9465:9465"
     environment:
-      - PORT=3001
+      - PORT=7001
+    networks:
+      - general-network
+    restart: unless-stopped
 
   vehicles-service:
     build: ./apps/vehicles
     ports:
-      - "3002:3002"
+      - "7002:7002"
+      - "9466:9466"
     environment:
-      - PORT=3002
+      - PORT=7002
+    networks:
+      - general-network
+    restart: unless-stopped
+
+
+networks:
+  general-network:
+    name: general-network
+    driver: bridge
