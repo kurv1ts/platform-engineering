@@ -53,7 +53,6 @@
 - Tasks:
   - Add `docker-compose.yml` with:
     - LocalStack (emulated AWS).
-    - Optional local Postgres for portal.
   - Configure Terraform provider:
     - `aws` provider pointing to LocalStack endpoints.
     - Make region/profile configurable.
