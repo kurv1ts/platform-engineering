@@ -4,3 +4,6 @@ dist
 volume
 
 .terraform
+
+.env*
+!.env.example

@@ -1,0 +1,21 @@
+import { z } from 'zod';
+
+import dotenv from 'dotenv';
+import { loadEnvFile } from 'process';
+import path from 'path';
+dotenv.config();
+loadEnvFile(path.join(process.cwd(),"src", ".env"));
+
+export const getEnv = (): Readonly<ReturnType<typeof validateEnv>> => {
+    return Object.freeze(validateEnv(process.env));
+};
+
+export const envSchema = z.object({
+    ENV: z.enum(['dev', 'prod']).default('dev'),
+    SERVICE_NAME: z.string().min(1),
+    PORT: z.string().regex(/^\d+$/).transform(Number),
+});
+
+export const validateEnv = (env: NodeJS.ProcessEnv) => {
+    return envSchema.parse(env);
+};
