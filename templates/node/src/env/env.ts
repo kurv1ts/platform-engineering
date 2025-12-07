@@ -14,6 +14,7 @@ export const envSchema = z.object({
     ENV: z.enum(['dev', 'prod']).default('dev'),
     SERVICE_NAME: z.string().min(1),
     PORT: z.string().regex(/^\d+$/).transform(Number),
+    METRICS_PREFIX: z.string().min(1).default('app_'),
 });
 
 export const validateEnv = (env: NodeJS.ProcessEnv) => {
