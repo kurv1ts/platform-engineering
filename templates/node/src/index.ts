@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { getEnv } from './env/env';
 import { logger } from './logger';
 import { initTracing } from './observability';
@@ -13,13 +13,13 @@ const PORT = ENV.PORT;
 
 app.use(express.json());
 
-app.get("/metrics", async (req, res, next) => {
+app.get("/metrics", async (_req: Request, res: Response) => {
   res.setHeader("Content-type", register.contentType);
   res.send(await register.metrics());
 });
 
 // Middleware to track requests and duration
-app.use((req: Request, res: Response, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path === '/metrics') return next();
 
   const startTime = Date.now();
@@ -71,7 +71,7 @@ const shutdown = async (signal: string) => {
   timeout.unref();
 
   try {
-    await new Promise<void>((resolve, reject) => server.close(err => err ? reject(err) : resolve()));
+    await new Promise<void>((resolve, reject) => server.close((err?: Error | undefined) => err ? reject(err) : resolve()));
     logger.warn("HTTP server closed");
   } catch (err) {
     logger.error("Error closing server", err);

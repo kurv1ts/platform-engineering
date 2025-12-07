@@ -1,10 +1,8 @@
 import { z } from 'zod';
 
 import dotenv from 'dotenv';
-import { loadEnvFile } from 'process';
 import path from 'path';
-dotenv.config();
-loadEnvFile(path.join(process.cwd(),"src", ".env"));
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 export const getEnv = (): Readonly<ReturnType<typeof validateEnv>> => {
     return Object.freeze(validateEnv(process.env));
