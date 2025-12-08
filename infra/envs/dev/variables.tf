@@ -3,9 +3,16 @@ variable "env" {
   default = "dev"
 }
 
+variable "service_name" {
+  type = string
+  default = "service-x"
+}
+
 variable "tags" {
   type = map(string)
-  default = {name = "company-x"}
+  default = {
+    env = "dev"
+  }
 }
 
 variable "public_subnets" {

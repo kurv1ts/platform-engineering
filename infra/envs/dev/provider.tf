@@ -36,5 +36,6 @@ provider "aws" {
     iam = "http://localhost:4566"
     elb = "http://localhost:4566"
     sts = "http://localhost:4566"
+    ecr = "http://localhost:4566"
   }
 }

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "${service_name}",
+    "image": "${image}",
+    "cpu": ${cpu},
+    "memory": ${memory},
+    "essential": true,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-create-group": "true",
+        "awslogs-group": "${service_name}-log-group",
+        "awslogs-stream-prefix": "${service_name}-log-stream",
+        "awslogs-region": "${region}"
+      }
+    }
+  }
+]
