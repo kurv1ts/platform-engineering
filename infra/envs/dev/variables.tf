@@ -8,6 +8,11 @@ variable "service_name" {
   default = "service-x"
 }
 
+variable "company_name" {
+  type = string
+  default = "company-x"
+}
+
 variable "tags" {
   type = map(string)
   default = {

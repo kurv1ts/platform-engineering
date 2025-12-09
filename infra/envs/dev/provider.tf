@@ -4,6 +4,14 @@ terraform {
       source  = "hashicorp/aws"
       version = "6.23.0"
     }
+    kind = {
+      source  = "tehcyx/kind"
+      version = "0.10.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "3.0.1"
+    }
   }
   backend "s3" {
     profile    = "localstack"
@@ -20,6 +28,15 @@ terraform {
     force_path_style            = true
   }
 }
+
+provider "kubernetes" {
+  host                   = module.k8_cluster.endpoint
+  cluster_ca_certificate = module.k8_cluster.cluster_ca_certificate
+  client_certificate     = module.k8_cluster.client_certificate
+  client_key             = module.k8_cluster.client_key
+}
+
+provider "kind" {}
 
 provider "aws" {
   alias                       = "dev"

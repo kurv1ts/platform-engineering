@@ -13,6 +13,39 @@ module "network" {
   }
 }
 
+
+module "k8_cluster" {
+  source       = "../../modules/k8/cluster"
+  company_name = var.company_name
+  env          = var.env
+  providers = {
+    kind = kind
+  }
+}
+
+module "k8_namespace_platform" {
+  source = "../../modules/k8/namespace"
+  env    = var.env
+  name   = "platform"
+  depends_on = [module.k8_cluster.company_x_cluster]
+  providers = {
+    kubernetes = kubernetes
+  }
+}
+
+module "k8_deployment_platform" {
+  source = "../../modules/k8/deployment"
+  deployment_name = "platform-deployment"
+  namespace = module.k8_namespace_platform.name
+  replicas = 3
+  depends_on = [module.k8_namespace_platform]
+  providers = {
+    kubernetes = kubernetes
+  }
+}
+
+/*
+ECS is not supported in localstack free tier
 module "ecs" {
   source                = "../../modules/ecs"
   service_name          = var.service_name
@@ -27,7 +60,7 @@ module "ecs" {
     aws = aws.dev
   }
 }
-
+*/
 /*
 ECR is not supported in localstack free tier
 module "ecr" {
