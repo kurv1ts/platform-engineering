@@ -1,5 +1,5 @@
 module "network" {
-  source       = "../../modules/network"
+  source       = "../../modules/platform/aws/network"
   service_name = var.service_name
   //65536 addresses per VPC
   vpc_cidr = "10.0.0.0/16"
@@ -15,7 +15,7 @@ module "network" {
 
 
 module "k8_cluster" {
-  source       = "../../modules/k8/cluster"
+  source       = "../../modules/platform/k8s/cluster"
   company_name = var.company_name
   env          = var.env
   providers = {
@@ -24,17 +24,25 @@ module "k8_cluster" {
 }
 
 module "k8_namespace_platform" {
-  source = "../../modules/k8/namespace"
+  source = "../../modules/platform/k8s/namespace_guardrails"
   env    = var.env
   name   = "platform"
-  depends_on = [module.k8_cluster.company_x_cluster]
+
+  # Start with ingress deny; flip egress to true once you have an allowlist strategy.
+  enable_default_deny_egress = false
+
+  labels = {
+    "owner" = "platform"
+  }
+
+  depends_on = [module.k8_cluster]
   providers = {
     kubernetes = kubernetes
   }
 }
 
 module "k8_deployment_platform" {
-  source = "../../modules/k8/deployment"
+  source = "../../modules/platform/k8s/deployment"
   deployment_name = "platform-deployment"
   namespace = module.k8_namespace_platform.name
   replicas = 3
@@ -46,8 +54,9 @@ module "k8_deployment_platform" {
 
 /*
 ECS is not supported in localstack free tier
+Missing IAM permissions
 module "ecs" {
-  source                = "../../modules/ecs"
+  source                = "../../modules/platform/aws/ecs"
   service_name          = var.service_name
   tags                  = merge(var.tags, { service = "${var.service_name}", env = var.env })
   ecs_subnet_ids        = module.network.private_subnet_ids
@@ -64,7 +73,7 @@ module "ecs" {
 /*
 ECR is not supported in localstack free tier
 module "ecr" {
-  source       = "../../modules/ecr"
+  source       = "../../modules/platform/aws/ecr"
   service_name = var.service_name
   tags         = merge(var.tags, { service = "${var.service_name}", env = var.env })
   providers = {
