@@ -41,5 +41,6 @@ resource "kubernetes_role_binding_v1" "engineering_role_binding" {
 
   metadata {
     name      = "${local.engineering_group_name}-edit"
+    namespace = kubernetes_namespace_v1.this.metadata[0].name
   }
 }
