@@ -1,7 +1,7 @@
 
 terraform {
   required_providers {
-    kind = { source = "tehcyx/kind" }
+    kind       = { source = "tehcyx/kind" }
     kubernetes = { source = "hashicorp/kubernetes" }
   }
 }
@@ -12,6 +12,20 @@ resource "kind_cluster" "company_x_cluster" {
   node_image      = "kindest/node:v1.34.0"
   kubeconfig_path = pathexpand("~/.kube/${var.company_name}-cluster-${var.env}-kubeconfig")
   wait_for_ready  = true
+
+  create_kms_key = true
+
+  encryption_config = {
+    resources = ["secrets"]
+  }
+
+  enabled_log_types = [
+    "api",               # Kubernetes API server requests
+    "audit",             # Audit logs for security and compliance
+    "authenticator",     # Authentication-related logs
+    "controllerManager", # Controller manager logs
+    "scheduler",         # Scheduler decision logs
+  ]
 
   kind_config {
     kind        = "Cluster"
