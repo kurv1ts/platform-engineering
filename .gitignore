@@ -7,3 +7,5 @@ volume
 
 .env*
 !.env.example
+
+.ssh

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-app
+  namespace: argocd
+spec:
+  project: bootstrap
+
+  source:
+    repoURL: git@github.com:kurv1ts/platform-engineering.git
+    targetRevision: HEAD
+    path: gitops/clusters/dev
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    # ArgoCD to pull the changes from the GitOps repository and apply them to the cluster. Polls every 3 minutes.
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,41 @@
+# -------------------------------------------------------------------
+# DEV environment overrides
+# - reduced scale
+# - cheaper resources
+# - higher verbosity
+# -------------------------------------------------------------------
+
+replicaCount: 1
+
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 2
+
+service:
+  type: ClusterIP
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+ports:
+  web:
+    port: 80
+    exposedPort: 80
+  websecure:
+    expose:
+      default: false
+
+additionalArguments:
+  # Entrypoints
+  - "--entryPoints.web.address=:80"
+  - "--entryPoints.websecure.address=:443"
+  - "--entryPoints.websecure.http.tls=false"
+
+  # Security / API
+  - "--api.dashboard=false"
+  - "--api.insecure=false"
+
+  # Logging (DEV override)
+  - "--log.level=DEBUG"

@@ -1,0 +1,105 @@
+# ------------------------------------------------------------------------------
+# Traefik "golden" values.yaml
+#
+# Architecture:
+# - Traefik operates in plain HTTP mode (no ACME, no internal TLS)
+#
+# Guarantees:
+# - Hardened runtime: non-root, read-only FS
+# - Observability: Prometheus metrics + /ping healthchecks
+# ------------------------------------------------------------------------------
+
+replicaCount: 2
+
+# ------------------------------------------------------------------------------
+# Providers
+# ------------------------------------------------------------------------------
+providers:
+  kubernetesCRD:
+    enabled: true
+  kubernetesIngress:
+    enabled: true
+
+# ------------------------------------------------------------------------------
+# Resources (baseline)
+# ------------------------------------------------------------------------------
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# ------------------------------------------------------------------------------
+# Deployment strategy (zero-downtime rolling updates)
+# ------------------------------------------------------------------------------
+deploymentStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# ------------------------------------------------------------------------------
+# Security hardening
+# ------------------------------------------------------------------------------
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  readOnlyRootFilesystem: true
+
+# ------------------------------------------------------------------------------
+# Observability
+# ------------------------------------------------------------------------------
+metrics:
+  prometheus:
+    enabled: true
+    entryPoint: metrics
+
+ping:
+  enabled: true
+
+service:
+  type: LoadBalancer
+
+# ------------------------------------------------------------------------------
+# Ports
+# - 443 stays enabled as transport port from NLB (plain HTTP), Traefik TLS disabled
+# - 80 optional: keep for redirect or debugging; can be locked down later
+# ------------------------------------------------------------------------------
+ports:
+  web:
+    port: 80
+    exposedPort: 80
+
+  websecure:
+    port: 443
+    exposedPort: 443
+    tls:
+      enabled: false
+
+# ------------------------------------------------------------------------------
+# Entrypoints (force 80/443 and force NO TLS in Traefik)
+# ------------------------------------------------------------------------------
+additionalArguments:
+  - "--entryPoints.web.address=:80"
+  - "--entryPoints.websecure.address=:443"
+  - "--entryPoints.websecure.http.tls=false"
+
+  # Don’t expose dashboard/insecure API
+  - "--api.dashboard=false"
+  - "--api.insecure=false"
+
+  # Log level (keep INFO for demo/prod)
+  - "--log.level=INFO"
+
+# ------------------------------------------------------------------------------
+# No persistence needed (no ACME / no cert storage)
+# ------------------------------------------------------------------------------
+persistence:
+  enabled: false
