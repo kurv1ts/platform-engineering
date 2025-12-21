@@ -32,7 +32,7 @@ spec:
               - $values/gitops/apps/platform/traefik/values/values-{{env}}.yaml
 
         - repoURL: git@github.com:kurv1ts/platform-engineering.git
-          targetRevision: HEAD
+          targetRevision: main
           ref: values
 
       destination:
