@@ -19,6 +19,15 @@ resources:
     cpu: 300m
     memory: 256Mi
 
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  paths:
+    - path: /
+      pathType: Prefix
+
 ports:
   web:
     port: 80
