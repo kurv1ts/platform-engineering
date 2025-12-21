@@ -28,11 +28,11 @@ spec:
           targetRevision: "{{version}}"
           helm:
             valueFiles:
-              - $values/apps/platform/traefik/values/values.yaml
-              - $values/apps/platform/traefik/values/values-{{env}}.yaml
+              - $values/gitops/apps/platform/traefik/values/values.yaml
+              - $values/gitops/apps/platform/traefik/values/values-{{env}}.yaml
 
         - repoURL: git@github.com:kurv1ts/platform-engineering.git
-          targetRevision: main
+          targetRevision: HEAD
           ref: values
 
       destination:
