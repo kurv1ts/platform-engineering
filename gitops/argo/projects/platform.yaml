@@ -10,7 +10,6 @@ spec:
   sourceRepos:
     - git@github.com:kurv1ts/platform-engineering.git
     - https://helm.traefik.io/traefik
-    - https://kubernetes-sigs.github.io/external-dns/
 
   # Single cluster, any namespace
   destinations:
