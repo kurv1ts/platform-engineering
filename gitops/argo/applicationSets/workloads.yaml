@@ -5,11 +5,11 @@ metadata:
   namespace: argocd
 spec:
   generators:
-    - list:
-        elements:
-          - name: whoami
-            env: dev
-            namespace: whoami
+    - git:
+        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        targetRevision: main
+        files:
+          - path: "gitops/apps/workloads/**/application.yaml"
 
   template:
     metadata:
