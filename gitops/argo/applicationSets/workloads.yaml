@@ -22,7 +22,7 @@ spec:
 
       source:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
-        revision: main
+        targetRevision: main
         path: gitops/apps/workloads/{{name}}/overlays/{{env}}
 
       destination:
