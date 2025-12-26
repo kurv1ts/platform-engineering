@@ -3,8 +3,8 @@
 .yarn/install-state.gz
 node_modules
 packages/*/node_modules
-plugins
 *.local.yaml
+plugins
 dist-types
 packages/*/dist
 plugins/*/dist
