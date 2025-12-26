@@ -7,7 +7,7 @@ spec:
   generators:
     - git:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
-        targetRevision: main
+        revision: main
         files:
           - path: "gitops/apps/workloads/**/application.yaml"
 
@@ -22,7 +22,7 @@ spec:
 
       source:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
-        targetRevision: main
+        revision: main
         path: gitops/apps/workloads/{{name}}/overlays/{{env}}
 
       destination:
