@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: platform
+  name: backstage
   namespace: argocd
 spec:
   generators:
@@ -9,7 +9,7 @@ spec:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
         revision: main
         files:
-          - path: "gitops/apps/platform/backstage/overlays/{{env}}/backstage.yaml"
+          - path: "gitops/apps/platform/backstage/overlays/*/backstage.yaml"
 
   template:
     metadata:
