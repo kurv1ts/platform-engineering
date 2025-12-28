@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - backstage.yaml
-  - traefik.yaml
+  - platform-traefik.yaml
