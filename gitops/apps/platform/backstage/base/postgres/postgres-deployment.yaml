@@ -10,6 +10,8 @@ spec:
       app: backstage-postgres
   template:
     metadata:
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1" #Deploy first (before the backstage application)
       labels:
         app: backstage-postgres
     spec:
