@@ -9,3 +9,4 @@ volume
 !.env.example
 
 .ssh
+.yarn*

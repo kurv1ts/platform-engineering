@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        targetRevision: main
+        files:
+          - path: "gitops/apps/platform/backstage/overlays/{{env}}/backstage.yaml"
+
+  template:
+    metadata:
+      name: "{{name}}-{{env}}"
+      annotations:
+        argocd.argoproj.io/sync-wave: "2" #Deployment order
+
+    spec:
+      project: platform
+      source:
+        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: gitops/apps/platform/backstage/overlays/{{env}}
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

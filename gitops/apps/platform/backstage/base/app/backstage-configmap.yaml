@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-config
+  namespace: backstage
+data:
+  POSTGRES_HOST: backstage-postgres
+  POSTGRES_PORT: "5432"
+  APP_BASE_URL: "http://localhost"
+  BACKEND_BASE_URL: "http://localhost"
