@@ -20,3 +20,6 @@ patches:
       - op: replace
         path: /spec/rules/0/host
         value: backstage.local
+      - op: replace
+        path: /spec/ingressClassName
+        value: traefik-dev
