@@ -14,6 +14,14 @@ autoscaling:
 service:
   type: ClusterIP
 
+providers:
+  kubernetesIngress:
+    # Format: namespace/servicename.
+    # The Kubernetes service to copy status from, depending on the service type:
+    # ClusterIP: The ExternalIPs of the service will be propagated to the ingress status
+    ingressEndpoint:
+      publishedService: "traefik/traefik-dev"
+
 resources:
   limits:
     cpu: 300m
