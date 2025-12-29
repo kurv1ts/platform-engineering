@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Custom health check for Ingresses with traefik-dev ingressClassName as no load balancer is assigned in test environment
+  resource.customizations.health.networking.k8s.io_Ingress: |
+    hs = {}
+    -- Only override for our specific dev controller
+    if obj.spec.ingressClassName == "traefik-dev" then
+      hs.status = "Healthy"
+      hs.message = "Ingress is managed by traefik-dev (ClusterIP)"
+      return hs
+    end
+    -- Default logic for all other Ingresses (re-implementation of standard check)
+    if obj.status ~= nil and obj.status.loadBalancer ~= nil and obj.status.loadBalancer.ingress ~= nil and #obj.status.loadBalancer.ingress > 0 then
+      hs.status = "Healthy"
+      return hs
+    end
+
+    hs.status = "Progressing"
+    hs.message = "Waiting for load balancer address"
+    return hs
