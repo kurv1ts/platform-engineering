@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ../../argo/projects
   - ../../argo/applicationSets
-  - ../../argo/resources/configmap.yaml
+  - ../../argo/resources
