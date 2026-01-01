@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - platform
   - workloads/workloads.yaml
+  - ../resources/configmap.yaml
