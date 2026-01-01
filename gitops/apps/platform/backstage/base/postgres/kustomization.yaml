@@ -3,6 +3,6 @@ kind: Kustomization
 
 resources:
   - postgres-deployment.yaml
-  - postgres-secrets.yaml
+  - postgres-sealedsecrets.yaml
   - postgres-service.yaml
   - postgres-storage.yaml

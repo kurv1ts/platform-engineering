@@ -5,5 +5,5 @@ resources:
   - backstage-configmap.yaml
   - backstage-deployment.yaml
   - backstage-ingress.yaml
-  - backstage-secrets.yaml
+  - backstage-sealedsecrets.yaml
   - backstage-service.yaml
