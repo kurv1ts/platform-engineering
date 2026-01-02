@@ -19,7 +19,7 @@ spec:
       source:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
         targetRevision: main
-        path: "{{.path}}"
+        path: "{{.path.path}}"
       destination:
         server: https://kubernetes.default.svc
         namespace: platform-{{.path.basename}}
