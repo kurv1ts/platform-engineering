@@ -3,6 +3,8 @@ kind: Kustomization
 
 resources:
   - ../../base
+  - backstage-sealedsecrets.yaml
+  - postgres-sealedsecrets.yaml
 
 namespace: backstage-dev
 
