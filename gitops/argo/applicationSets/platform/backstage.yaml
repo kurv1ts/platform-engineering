@@ -4,6 +4,7 @@ metadata:
   name: backstage
   namespace: argocd
 spec:
+  goTemplate: true
   generators:
     - git:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
