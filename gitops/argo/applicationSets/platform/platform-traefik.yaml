@@ -9,7 +9,7 @@ spec:
         elements:
           - env: dev
             name: traefik
-            namespace: traefik
+            namespace: traefik-dev
             chart: traefik
             repo: https://helm.traefik.io/traefik
             version: "37.4.0"

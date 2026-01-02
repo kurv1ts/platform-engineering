@@ -3,3 +3,8 @@ kind: Kustomization
 
 resources:
   - ../../base
+
+namespace: sealed-secrets-dev
+
+commonLabels:
+  env: dev

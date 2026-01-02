@@ -8,26 +8,22 @@ spec:
     - git:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
         revision: main
-        files:
-          - path: "gitops/apps/platform/backstage/overlays/*/backstage.yaml"
-
+        directories:
+          - path: gitops/apps/platform/backstage/overlays/*
   template:
     metadata:
-      name: "{{name}}-{{env}}"
+      name: "backstage-{{.path.basename}}"
       annotations:
         argocd.argoproj.io/sync-wave: "2" #Deployment order
-
     spec:
       project: platform
       source:
         repoURL: git@github.com:kurv1ts/platform-engineering.git
         targetRevision: main
-        path: gitops/apps/platform/backstage/overlays/{{env}}
-
+        path: "{{.path.path}}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{namespace}}"
-
+        namespace: backstage-{{.path.basename}}
       syncPolicy:
         automated:
           prune: true
