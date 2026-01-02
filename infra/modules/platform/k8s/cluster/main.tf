@@ -13,20 +13,6 @@ resource "kind_cluster" "company_x_cluster" {
   kubeconfig_path = pathexpand("~/.kube/${var.company_name}-cluster-${var.env}-kubeconfig")
   wait_for_ready  = true
 
-  create_kms_key = true
-
-  encryption_config = {
-    resources = ["secrets"]
-  }
-
-  enabled_log_types = [
-    "api",               # Kubernetes API server requests
-    "audit",             # Audit logs for security and compliance
-    "authenticator",     # Authentication-related logs
-    "controllerManager", # Controller manager logs
-    "scheduler",         # Scheduler decision logs
-  ]
-
   kind_config {
     kind        = "Cluster"
     api_version = "kind.x-k8s.io/v1alpha4"
@@ -47,6 +33,17 @@ resource "kind_cluster" "company_x_cluster" {
 
     node {
       role = "worker"
+      labels = {
+        role = "platform"
+      }
     }
+
+    node {
+      role = "worker"
+      labels = {
+        role = "workloads"
+      }
+    }
+
   }
 }

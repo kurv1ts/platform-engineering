@@ -1,18 +1,3 @@
-module "network" {
-  source       = "../../modules/platform/aws/network"
-  service_name = var.service_name
-  //65536 addresses per VPC
-  vpc_cidr = "10.0.0.0/16"
-  //256 addresses per subnet
-  public_subnets     = { a = { cidr_block = "10.0.1.0/24", availability_zone = "eu-west-1a" }, b = { cidr_block = "10.0.2.0/24", availability_zone = "eu-west-1b" } }
-  private_subnets    = { a = { cidr_block = "10.0.3.0/24", availability_zone = "eu-west-1a" }, b = { cidr_block = "10.0.4.0/24", availability_zone = "eu-west-1b" } }
-  create_nat_gateway = true
-  tags               = merge(var.tags, { service = "${var.service_name}", env = var.env })
-  providers = {
-    aws = aws.dev
-  }
-}
-
 
 module "k8_cluster" {
   source       = "../../modules/platform/k8s/cluster"
@@ -23,34 +8,6 @@ module "k8_cluster" {
   }
 }
 
-module "k8_namespace_platform" {
-  source = "../../modules/platform/k8s/namespace_guardrails"
-  env    = var.env
-  name   = "platform"
-
-  # Start with ingress deny; flip egress to true once you have an allowlist strategy.
-  enable_default_deny_egress = false
-
-  labels = {
-    "owner" = "platform"
-  }
-
-  depends_on = [module.k8_cluster]
-  providers = {
-    kubernetes = kubernetes
-  }
-}
-
-module "k8_deployment_platform" {
-  source = "../../modules/platform/k8s/deployment"
-  deployment_name = "platform-deployment"
-  namespace = module.k8_namespace_platform.name
-  replicas = 3
-  depends_on = [module.k8_namespace_platform]
-  providers = {
-    kubernetes = kubernetes
-  }
-}
 
 /*
 ECS is not supported in localstack free tier
@@ -76,6 +33,21 @@ module "ecr" {
   source       = "../../modules/platform/aws/ecr"
   service_name = var.service_name
   tags         = merge(var.tags, { service = "${var.service_name}", env = var.env })
+  providers = {
+    aws = aws.dev
+  }
+}
+
+module "network" {
+  source       = "../../modules/platform/aws/network"
+  service_name = var.service_name
+  //65536 addresses per VPC
+  vpc_cidr = "10.0.0.0/16"
+  //256 addresses per subnet
+  public_subnets     = { a = { cidr_block = "10.0.1.0/24", availability_zone = "eu-west-1a" }, b = { cidr_block = "10.0.2.0/24", availability_zone = "eu-west-1b" } }
+  private_subnets    = { a = { cidr_block = "10.0.3.0/24", availability_zone = "eu-west-1a" }, b = { cidr_block = "10.0.4.0/24", availability_zone = "eu-west-1b" } }
+  create_nat_gateway = true
+  tags               = merge(var.tags, { service = "${var.service_name}", env = var.env })
   providers = {
     aws = aws.dev
   }
