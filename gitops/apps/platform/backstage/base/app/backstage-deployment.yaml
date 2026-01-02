@@ -13,6 +13,8 @@ spec:
       labels:
         app: backstage
     spec:
+      nodeSelector:
+        role: platform
       containers:
         - name: backstage
           # Currently the image was built locally and loaded to kind cluster. In real world use case, the image should be built and pushed to a container registry.

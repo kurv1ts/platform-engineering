@@ -5,3 +5,4 @@ resources:
   - backstage.yaml
   - platform-traefik.yaml
   - sealed-secrets.yaml
+  - platform-resources.yaml

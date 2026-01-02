@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+# This adds the suffix "-dev" to the namespace name (platform -> platform-dev)
+# AND updates all references to that namespace in RoleBindings, NetworkPolicies, etc.
+namespace: platform-dev
+
+commonLabels:
+  env: dev

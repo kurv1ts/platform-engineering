@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-resources
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - git:
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
+        revision: main
+        directories:
+          - path: gitops/platform/overlays/*
+  template:
+    metadata:
+      name: "platform-resources-{{.path.basename}}"
+    spec:
+      project: platform
+      source:
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: "{{.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: platform-{{.path.basename}}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

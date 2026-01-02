@@ -67,6 +67,7 @@ ping:
 service:
   type: LoadBalancer
 
+nodeSelector: { role: platform }
 # ------------------------------------------------------------------------------
 # Ports
 # - 443 stays enabled as transport port from NLB (plain HTTP), Traefik TLS disabled
