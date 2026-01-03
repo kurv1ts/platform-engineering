@@ -11,7 +11,7 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
-  name: guests
+  name: platform
 spec:
   type: team
   children: []
@@ -20,5 +20,7 @@ apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
   name: kurv1ts
+  annotations:
+    github.com/user-login: kurv1ts
 spec:
-  memberOf: [guests]
+  memberOf: [platform]

@@ -1,5 +1,5 @@
 app:
-  title: Scaffolded Backstage App
+  title: kurv1ts IDP
   baseUrl: http://localhost:3000
 
 organization:

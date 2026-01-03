@@ -34,6 +34,10 @@ cors:
   methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
   credentials: true
 
+company:
+  github:
+    owner: ${GITHUB_ORG}
+
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
   providers:

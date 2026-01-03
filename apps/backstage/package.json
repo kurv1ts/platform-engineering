@@ -28,6 +28,9 @@
       "plugins/*"
     ]
   },
+  "dependencies": {
+    "yaml": "2.8.2"
+  },
   "devDependencies": {
     "@backstage/cli": "^0.35.0",
     "@backstage/e2e-test-utils": "^0.1.1",

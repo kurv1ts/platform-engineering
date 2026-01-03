@@ -2,81 +2,93 @@ apiVersion: scaffolder.backstage.io/v1beta3
 # https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
 kind: Template
 metadata:
-  name: example-nodejs-template
-  title: Example Node.js Template
-  description: An example template for the scaffolder that creates a simple Node.js service
+  name: node24-template
+  title: Nodejs v24 Template
+  description: An example template for the scaffolder that creates a node v24 application.
 spec:
-  owner: user:guest
+  owner: group:platform
   type: service
 
   # These parameters are used to generate the input form in the frontend, and are
   # used to gather input data for the execution of the template.
   parameters:
-    - title: Fill in some steps
+    - title: Component information
       required:
         - name
       properties:
         name:
-          title: Name
+          title: Component name
           type: string
           description: Unique name of the component
           ui:autofocus: true
           ui:options:
             rows: 5
-    - title: Choose a location
+
+    - title: Repository details
       required:
-        - repoUrl
+        - team
+        - repo
       properties:
-        repoUrl:
-          title: Repository Location
+        team:
+          title: Team
           type: string
-          ui:field: RepoUrlPicker
+          description: Team that owns the service
+          ui:field: OwnerPicker
           ui:options:
-            allowedHosts:
-              - github.com
+            catalogFilter:
+              - kind: Group
+        repo:
+          title: Repository name
+          type: string
 
   # These steps are executed in the scaffolder backend, using data that we gathered
   # via the parameters above.
   steps:
     # Each step executes an action, in this case one templates files into the working directory.
-    - id: fetch-base
+    - id: fetchBase
       name: Fetch Base
       action: fetch:template
       input:
-        url: ./content
+        url: https://github.com/kurv1ts/platform-engineering/tree/main/templates/node
         values:
           name: ${{ parameters.name }}
 
-    # This step publishes the contents of the working directory to GitHub.
-    # If you or your organization prefer another default branch name over 'main'
-    # you can change that here.
     - id: publish
       name: Publish
       action: publish:github
       input:
         description: This is ${{ parameters.name }}
-        repoUrl: ${{ parameters.repoUrl }}
-        defaultBranch: 'main'
+        # Hardcoded owner for now, should create custom action for this
+        repoUrl: github.com?owner=kurv1ts&repo=${{ parameters.team | parseEntityRef | pick('name') }}-${{ parameters.repo }}
+        defaultBranch: "main"
 
-    # The final step is to register our new component in the catalog.
+    # Custom action for updating catalog-info.yaml. Next step registers the component in the catalog
+    - id: updateCatalogInfo
+      name: update-catalog-info
+      action: template:catalog-info-handler
+      input:
+        repoUrl: github.com?owner=kurv1ts&repo=${{ parameters.team | parseEntityRef | pick('name') }}-${{ parameters.repo }}
+        team: ${{ parameters.team }}
+        componentName: ${{ parameters.name }}
+
+    # The final step is to register the new component in the catalog.
     - id: register
       name: Register
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
-        catalogInfoPath: '/catalog-info.yaml'
+        catalogInfoPath: "/catalog-info.yaml"
 
-    # Let's notify the user that the template has completed using the Notification action
     - id: notify
       name: Notify
       action: notification:send
       input:
         recipients: entity
         entityRefs:
-          - user:default/guest
-        title: 'Template executed'
-        info: 'Your template has been executed'
-        severity: 'normal'
+          - ${{ user.entityRef }}
+        title: "Template executed"
+        info: "Your template has been executed"
+        severity: "normal"
 
   # Outputs are displayed to the user after a successful execution of the template.
   output:
