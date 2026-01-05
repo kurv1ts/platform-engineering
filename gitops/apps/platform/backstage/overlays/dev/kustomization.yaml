@@ -4,9 +4,7 @@ resources:
   - ../../base
   - backstage-sealedsecrets.yaml
   - postgres-sealedsecrets.yaml
-
 namespace: backstage-dev
-
 patches:
   - patch: |-
       - op: replace
@@ -28,4 +26,4 @@ patches:
 images:
   - name: backstage
     newName: p6hi/backstage
-    newTag: sha-81ad15f95ed177bcad14ab1a93a28bdd6cccccfe
+    newTag: sha-a9fbd464a930bbfc6cc6353bcfdc08e5d7b340de
