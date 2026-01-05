@@ -8,3 +8,4 @@ data:
   POSTGRES_PORT: "5432"
   APP_BASE_URL: "http://localhost"
   BACKEND_BASE_URL: "http://localhost"
+  GITHUB_ORG: kurv1ts
