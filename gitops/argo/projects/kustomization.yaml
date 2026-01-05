@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - bootstrap.yaml
   - platform.yaml
-  - workloads.yaml
+  - workloads-dev.yaml
+  - workloads-prod.yaml

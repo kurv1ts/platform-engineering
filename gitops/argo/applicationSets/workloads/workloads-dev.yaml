@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: workloads-dev
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - scmProvider:
+        github:
+          organization: kurv1ts
+          topic: idp-managed
+          filters:
+            - repositoryMatch:
+                paths:
+                  - "deployment/overlays/dev/kustomization.yaml"
+  template:
+    metadata:
+      name: "{{ .repository }}-dev"
+    spec:
+      project: workloads
+      source:
+        repoURL: "{{ .url }}"
+        targetRevision: main
+        path: deployment/overlays/dev
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: dev
+      syncPolicy:
+        # automated:
+        #   prune: true
+        #   selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

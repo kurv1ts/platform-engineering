@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${{ values.name }}
+  labels:
+    app: ${{ values.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${{ values.name }}
+  template:
+    metadata:
+      labels:
+        app: ${{ values.name }}
+    spec:
+      containers:
+        - name: k8s-node-api
+          image: ${{ values.name }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: ${{ values.name }}-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

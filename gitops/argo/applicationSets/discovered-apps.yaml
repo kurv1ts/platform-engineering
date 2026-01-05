@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: discovered-apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - scmProvider:
+              github:
+                organization: kurv1ts
+                topic: idp-managed
+                filters:
+                  - repositoryMatch:
+                      paths:
+                        - "deployment/overlays/*/kustomization.yaml"
+          - git:
+              repoURL: "{{ url }}"
+              revision: "{{ .branch }}"
+              directories:
+                - path: "deployment/overlays/*"
+  template:
+    metadata:
+      name: "{{ repository }}-{{ path.basename }}"
+    spec:
+      project: workloads
+      source:
+        repoURL: "{{ url }}"
+        targetRevision: "{{ .branch }}"
+        path: "{{ path }}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ path.basename }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
