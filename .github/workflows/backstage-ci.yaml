@@ -61,13 +61,11 @@ jobs:
           fetch-depth: 0
 
       - name: Update Kubernetes resources
-        uses: mikefarah/yq@v4.49.2
         run: |
           cd gitops/apps/platform/backstage/overlays/${{ inputs.environment }}
           FULL_IMAGE="${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
           NEW_TAG="${{ needs.build-and-push.outputs.image_tag }}"
 
-          # Update the Kustomize image entry
           yq eval "(.images[] | select(.name == \"${{ env.IMAGE_NAME }}\")).newName = \"$FULL_IMAGE\"" -i kustomization.yaml
           yq eval "(.images[] | select(.name == \"${{ env.IMAGE_NAME }}\")).newTag = \"$NEW_TAG\"" -i kustomization.yaml
 
