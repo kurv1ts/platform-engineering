@@ -62,7 +62,9 @@ jobs:
       - name: Update Kubernetes resources
         run: |
           cd gitops/apps/platform/backstage/overlays/${{ inputs.environment }}
-          kustomize edit set image ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image_tag }}
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
+          NEW_TAG="${{ needs.build-and-push.outputs.image_tag }}"
+          yq eval "(.images[] | select(.name == \"$IMAGE_NAME\")).newTag = \"$NEW_TAG\"" -i kustomization.yaml
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
