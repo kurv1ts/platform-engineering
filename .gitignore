@@ -10,5 +10,5 @@ volume
 
 .ssh
 .yarn*
-
+!.yarnrc.yml
 .vscode
