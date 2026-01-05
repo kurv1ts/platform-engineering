@@ -9,6 +9,4 @@ volume
 !.env.example
 
 .ssh
-.yarn*
-!.yarnrc.yml
 .vscode
