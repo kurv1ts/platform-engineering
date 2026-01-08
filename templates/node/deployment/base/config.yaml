@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${{ values.name }}-config
+data:
+  PORT: "3000"
+  NODE_ENV: "dev"
+  METRICS_PREFIX: "${{ values.name }}_"
+  SERVICE_NAME: "${{ values.name }}"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://collector:4317"

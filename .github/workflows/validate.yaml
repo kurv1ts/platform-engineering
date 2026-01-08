@@ -1,0 +1,109 @@
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  terraform:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        continue-on-error: false
+
+      - name: Terraform Init (modules only)
+        run: |
+          cd modules/platform/k8s/cluster && terraform init -backend=false
+
+      - name: Terraform Validate (cluster module)
+        run: |
+          cd modules/platform/k8s/cluster && terraform validate
+
+      - name: Terraform Validate (namespace module)
+        run: |
+          cd modules/team/k8s_namespace && terraform validate
+
+  yaml-lint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Create yamllint config
+        run: |
+          cat > .yamllint.yaml << 'EOF'
+          extends: relaxed
+          rules:
+            line-length:
+              max: 150
+              allow-non-breakable-words: true
+            truthy:
+              allowed-values: ['true', 'false', 'yes', 'no']
+            comments:
+              min-spaces-from-content: 1
+            indentation:
+              spaces: 2
+              indent-sequences: consistent
+          EOF
+
+      - name: Lint GitOps manifests
+        run: yamllint gitops/ -c .yamllint.yaml
+
+      - name: Lint Templates
+        run: yamllint templates/node/deployment/ -c .yamllint.yaml
+
+  kustomize:
+    name: Kustomize Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Build Backstage overlay (dev)
+        run: kustomize build gitops/apps/platform/backstage/overlays/dev
+
+      - name: Build Sealed Secrets overlay (dev)
+        run: kustomize build gitops/apps/platform/sealed-secrets/overlays/dev
+
+      - name: Build Node template overlay (dev)
+        run: kustomize build templates/node/deployment/overlays/dev
+
+  docker-lint:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint Backstage Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: apps/backstage/Dockerfile
+          failure-threshold: warning
+
+      - name: Lint Node Template Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: templates/node/Dockerfile
+          failure-threshold: warning
+
