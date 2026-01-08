@@ -83,7 +83,10 @@ Demo services include configurable error rates and latency injection for testing
 | Service Templates | ✅ Working | Node.js with observability |
 | Auto-Discovery | 🔧 WIP | ApplicationSet configured, needs testing |
 | CI/CD Pipelines | ✅ Working | Backstage CI pushes to Docker Hub, updates GitOps |
-| AWS Integration | ⏸️ Planned | ECS/ECR modules ready but not active |
+| RBAC | ⏸️ Planned |  |
+| NetworkPolicies | ⏸️ Planned |  |
+| ResourceQuota | ⏸️ Planned |  |
+| Ingress -> Gateway API | ⏸️ Planned |  |
 
 ## Repository Structure
 
@@ -115,6 +118,10 @@ platform-engineering/
 cd infra/envs/dev
 terraform init && terraform apply
 ```
+To use kubectl on Kind cluster run
+```
+export KUBECONFIG=~/.kube/company-x-cluster-dev-kubeconfig
+```
 
 ### 2. Bootstrap ArgoCD
 See [docs/002-argocd-bootstrap.md](docs/002-argocd-bootstrap.md) for detailed steps.
@@ -144,19 +151,19 @@ docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n
 - [Backstage Image](docs/003-backstage-image.md) - Building and deploying Backstage
 - [Sealed Secrets](docs/004-sealed-secrets.md) - Secret management approach
 
-## Why This Project?
+## Notes
 
 This project intentionally avoids over-engineering. It runs on a single Kind cluster, uses opinionated defaults, and optimizes for clarity over flexibility. The goal is to understand platform tradeoffs firsthand, not to simulate enterprise scale.
 
 Things I deliberately left out:
 - Multi-cluster federation (adds complexity before it's needed)
 - Vault for secrets (Sealed Secrets is good enough for learning GitOps patterns)
-- Service mesh (Traefik handles ingress)
 - Fancy dashboards (the observability stack works, visualization can come later)
 
 What I learned building this:
 - **GitOps is great until it isn't** — debugging sync failures requires understanding both Git state and cluster state
+("ArgoCD shows OutOfSync because the Git repo is correct, but the cluster is missing a CRD (SealedSecrets). You have to check both the Git manifests and what’s actually installed in the cluster.")
 - **Templates are opinions** — every default you bake in is a decision someone will want to override
----
+(The Node template sets default CPU/memory limits and a specific logging format. A team running a batch job or high‑throughput API will want to override those defaults.)
 
 *This is a learning project. It works, but it's not production-hardened. Feedback is welcomed.*

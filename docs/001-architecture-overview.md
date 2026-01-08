@@ -139,16 +139,6 @@ Simplest method to access Backstage UI is to port-forward the Backstage service 
 - Workloads run in team namespaces on `workloads` node
 - Node selectors enforce this separation
 
-## Future Roadmap
-
-| Feature | Priority |
-|---------|----------|
-| RBAC | High |
-| NetworkPolicies | High |
-| ResourceQuota | High |
-| Gateway API | medium |
-| Vault integration | Low |
-...
 
 ## Related Documentation
 
