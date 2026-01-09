@@ -1,3 +1,4 @@
+{% raw %}
 name: Build & Push Docker Image to registry
 
 on:
@@ -127,3 +128,4 @@ jobs:
           git add "$KUSTOMIZATION"
           git commit -m "chore(deploy): pin image tag ${TAG} for ${ENV}"
           git push
+{% endraw %}
