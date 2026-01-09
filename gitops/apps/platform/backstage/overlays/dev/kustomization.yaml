@@ -26,4 +26,4 @@ patches:
 images:
   - name: backstage
     newName: p6hi/backstage
-    newTag: sha-4ef1040f668ff4c269cff475e2b4985258cbf27f
+    newTag: sha-6266bb94396cc458ad25d4f11258254388ade973
