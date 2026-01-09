@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
     outputs:
       image_tag: ${{ steps.meta.outputs.version }}
     steps:
@@ -47,6 +48,20 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ steps.meta.outputs.tags }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   update-gitops:
     environment: ${{ inputs.environment }}

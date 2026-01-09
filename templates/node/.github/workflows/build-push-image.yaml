@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  security-events: write
 
 jobs:
   build-and-push:
@@ -60,6 +61,20 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ steps.vars.outputs.image_name }}:${{ steps.vars.outputs.tag }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/${{ steps.vars.outputs.image_name }}:${{ steps.vars.outputs.tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: Update env overlay image tag to SHA
         shell: bash
