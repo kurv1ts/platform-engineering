@@ -10,7 +10,7 @@ spec:
   # Hardcoded github repository for the scaffolded application for now
   # SCMProvider requires Github organization and migrating to Github App as authentication method for api access.
     - git:
-          repoURL: git@github.com:kurv1ts/platform-scaffolded-api.git
+          repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
           revision: main
           directories:
             - path: deployment/overlays/*
