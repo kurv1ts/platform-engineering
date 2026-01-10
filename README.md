@@ -21,7 +21,39 @@ deployments.
 
 [![](https://mermaid.ink/img/pako:eNqNUl1vmzAU_StXfmq1pE1DSQiaKnWNtE6dqqqJNGmhDw6-ECtgW9emWxr632cgZG21hwkBPpd7zv047FmqBbKYZYX-lW44OVjOEwUwx-eVv7HQBukJhsMr-MLTrXU8x9U35ZAUL-CYAQ8Fd5mm8ilRzQVgq3VO3GzgLrKrhN1Va09BhxbSorKeDyd3UonThD016QBCEqZOagXfH7tIr3nvW_QSPQTl8ec1nV9dU65v5vAJro0pZMob9gJd-21JHDO5BalyQmuPZX5o2haaC3tQPeK_souUZ5kuBAqwSM8y7cL3vERreIon9jQGgc_nhrRohRtpVKI7HPfUbq1eYOHnAoel8QNgDb38otPuSB-Cqx73HXQW1I-Yy3Z5fWPna7q6IfTCQGi0lU7Tro3Cgw9wQt-pKfSuROUg1SqTOdTwVbrbar3qXi2zXc8B-1L1UhuZxiCFGZZc-WlE_c6QJv0tbkldJ_atH_X7jf-TttipFHwVmaF19n8Yt9q64Zpbb9HB4A8sNmA5ScFiRxUOWIlU8gayfaOXMLfBEhMW-6PgtE1Yol49x3D1U-uyp5Gu8g2LM15Yjyoj_HRzyf2PXR6j5I1HutGVciy-uAhnrQqL9-w3i8ej6CwIJ0EYTKcX48tgEg3YzqcFZ9E0HEWj2WU4GwVRNHkdsJe28OhsdjkdjyfheBrMZv4Zvv4BMFhBDg?type=png)](https://mermaid.live/edit#pako:eNqNUl1vmzAU_StXfmq1pE1DSQiaKnWNtE6dqqqJNGmhDw6-ECtgW9emWxr632cgZG21hwkBPpd7zv047FmqBbKYZYX-lW44OVjOEwUwx-eVv7HQBukJhsMr-MLTrXU8x9U35ZAUL-CYAQ8Fd5mm8ilRzQVgq3VO3GzgLrKrhN1Va09BhxbSorKeDyd3UonThD016QBCEqZOagXfH7tIr3nvW_QSPQTl8ec1nV9dU65v5vAJro0pZMob9gJd-21JHDO5BalyQmuPZX5o2haaC3tQPeK_souUZ5kuBAqwSM8y7cL3vERreIon9jQGgc_nhrRohRtpVKI7HPfUbq1eYOHnAoel8QNgDb38otPuSB-Cqx73HXQW1I-Yy3Z5fWPna7q6IfTCQGi0lU7Tro3Cgw9wQt-pKfSuROUg1SqTOdTwVbrbar3qXi2zXc8B-1L1UhuZxiCFGZZc-WlE_c6QJv0tbkldJ_atH_X7jf-TttipFHwVmaF19n8Yt9q64Zpbb9HB4A8sNmA5ScFiRxUOWIlU8gayfaOXMLfBEhMW-6PgtE1Yol49x3D1U-uyp5Gu8g2LM15Yjyoj_HRzyf2PXR6j5I1HutGVciy-uAhnrQqL9-w3i8ej6CwIJ0EYTKcX48tgEg3YzqcFZ9E0HEWj2WU4GwVRNHkdsJe28OhsdjkdjyfheBrMZv4Zvv4BMFhBDg)
 
-For the detailed design and local access patterns (hosts/port-forwarding), see `docs/001-architecture-overview.md`.
+For the detailed design and local access patterns (hosts/port-forwarding), see [`docs/001-architecture-overview.md`](docs/001-architecture-overview.md).
+
+## Repository Structure
+
+```
+platform-engineering/
+├── apps/                    # Platform-managed applications
+│   ├── backstage/          # IDP portal with custom plugins
+│   ├── rental/             # Demo service with chaos engineering
+│   ├── vehicles/           # Demo service
+│   └── platform/           # Orchestrator service
+├── docs/                   # Architecture decisions & setup guides
+├── gitops/                 # ArgoCD applications and configurations
+│   ├── argo/              # Root app, projects, ApplicationSets
+│   ├── apps/              # Kustomize bases and overlays
+│   └── clusters/          # Cluster-specific configurations
+├── infra/                  # Terraform infrastructure code
+│   ├── modules/           # Reusable modules (k8s, team namespaces)
+│   └── envs/              # Environment configurations
+└── templates/              # Service templates for scaffolding
+    └── node/              # Node.js service template
+```
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Portal** | Backstage | Self-service UI, software catalog, scaffolding |
+| **GitOps** | ArgoCD | Declarative deployments, drift detection |
+| **Infrastructure** | Terraform + Kind | Local K8s cluster provisioning |
+| **Ingress** | Traefik | Traffic routing, TLS termination |
+| **Secrets** | Sealed Secrets | GitOps-compatible secret management |
+| **Observability** | OpenTelemetry, Prometheus | Tracing, metrics, structured logging |
+| **Config Management** | Kustomize | Environment-specific overlays |
 
 ## What I Built
 
@@ -61,53 +93,6 @@ Demo services include configurable error rates and latency injection for testing
 
 **Key file:** [`apps/rental/src/index.ts`](apps/rental/src/index.ts)
 
-## Tech Stack
-
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Portal** | Backstage | Self-service UI, software catalog, scaffolding |
-| **GitOps** | ArgoCD | Declarative deployments, drift detection |
-| **Infrastructure** | Terraform + Kind | Local K8s cluster provisioning |
-| **Ingress** | Traefik | Traffic routing, TLS termination |
-| **Secrets** | Sealed Secrets | GitOps-compatible secret management |
-| **Observability** | OpenTelemetry, Prometheus | Tracing, metrics, structured logging |
-| **Config Management** | Kustomize | Environment-specific overlays |
-
-## Project Status
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Backstage IDP | ✅ Working | Custom scaffolder action functional |
-| ArgoCD GitOps | ✅ Working | App-of-Apps deployed |
-| Kind Cluster | ✅ Working | Terraform provisioned |
-| Service Templates | ✅ Working | Node.js with observability |
-| Auto-Discovery | 🔧 WIP | ApplicationSet configured, needs testing |
-| CI/CD Pipelines | ✅ Working | Backstage CI pushes to Docker Hub, updates GitOps |
-| RBAC | ⏸️ Planned |  |
-| NetworkPolicies | ⏸️ Planned |  |
-| ResourceQuota | ⏸️ Planned |  |
-| Ingress -> Gateway API | ⏸️ Planned |  |
-
-## Repository Structure
-
-```
-platform-engineering/
-├── apps/                    # Platform-managed applications
-│   ├── backstage/          # IDP portal with custom plugins
-│   ├── rental/             # Demo service with chaos engineering
-│   ├── vehicles/           # Demo service
-│   └── platform/           # Orchestrator service
-├── docs/                   # Architecture decisions & setup guides
-├── gitops/                 # ArgoCD applications and configurations
-│   ├── argo/              # Root app, projects, ApplicationSets
-│   ├── apps/              # Kustomize bases and overlays
-│   └── clusters/          # Cluster-specific configurations
-├── infra/                  # Terraform infrastructure code
-│   ├── modules/           # Reusable modules (k8s, team namespaces)
-│   └── envs/              # Environment configurations
-└── templates/              # Service templates for scaffolding
-    └── node/              # Node.js service template
-```
 
 ## Getting Started
 
@@ -143,6 +128,22 @@ cd apps/backstage
 docker build . -t backstage:0.0.1
 docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n k8s.io images import -
 ```
+
+## Project Status
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Backstage IDP | ✅ Working | Custom scaffolder action functional |
+| ArgoCD GitOps | ✅ Working | App-of-Apps deployed |
+| Kind Cluster | ✅ Working | Terraform provisioned |
+| Service Templates | ✅ Working | Node.js with observability |
+| CI/CD Pipelines | ✅ Working | Backstage CI pushes to Docker Hub, updates GitOps |
+| Auto-Discovery | 🔧 WIP | Need to create a Github org for topic based repo discovery  |
+| RBAC | ⏸️ Planned |  |
+| NetworkPolicies | ⏸️ Planned |  |
+| ResourceQuota | ⏸️ Planned |  |
+| Ingress -> Gateway API | ⏸️ Planned |  |
+
 
 ## Documentation
 
