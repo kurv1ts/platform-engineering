@@ -9,11 +9,18 @@ spec:
   generators:
   # Hardcoded github repository for the scaffolded application for now
   # SCMProvider requires Github organization and migrating to Github App as authentication method for api access.
-    - git:
-          repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
-          revision: main
-          directories:
-            - path: deployment/overlays/*
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
+              revision: main
+              directories:
+                - path: deployment/overlays/*
+          - git:
+              repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
+              revision: main
+              files:
+                - path: .argocd/metadata.yaml
     # - matrix:
     #     generators:
     #       - scmProvider:
@@ -31,16 +38,17 @@ spec:
     #             - path: "deployment/overlays/*"
   template:
     metadata:
-      name: "{{ repository }}-{{ path.basename }}"
+      # Use serviceFullName from metadata.yaml if available, otherwise use directory basename
+      name: "{{ .serviceFullName }}"
     spec:
       project: workloads
       source:
-        repoURL: "{{ url }}"
-        targetRevision: "{{ .branch }}"
-        path: "{{ path }}"
+        repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
+        targetRevision: main
+        path: "{{ .path.path }}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{ path.basename }}"
+        namespace: "{{ .team }}-{{ .path.basename }}"
       syncPolicy:
         automated:
           prune: true
