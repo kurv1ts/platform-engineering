@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - platform
   - workloads/workloads-dev.yaml
-  - workloads/workloads-prod.yaml
   - discovered-apps.yaml
