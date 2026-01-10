@@ -35,13 +35,16 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
             const dockerToken = config.getOptionalString('company.docker.token');
 
             if (!dockerUsername || !dockerToken) {
-                ctx.logger.warn('Docker credentials not found in config. Skipping secret setup.');
+                ctx.logger.warn('Docker credentials not found in config. Skipping setup.');
                 ctx.logger.warn('Set company.docker.username and company.docker.token in app-config');
                 return;
             }
 
-            const secrets = {
+            const envVariables = {
                 DOCKER_USERNAME: dockerUsername,
+            };
+
+            const secrets = {
                 DOCKER_TOKEN: dockerToken,
             };
 
@@ -84,38 +87,44 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
                 throw new Error(`Invalid repoUrl: ${repoUrl}`);
             })(normalizedUrl);
 
+            for (const [name, value] of Object.entries(envVariables)) {
+                ctx.logger.info(`Setting up variable: ${name}`);
+                await octokit.actions.createRepoVariable({
+                    owner: repoOwner,
+                    repo: repo,
+                    name: name,
+                    value: value,
+                });
+                ctx.logger.info(`✓ Variable ${name} created`);
+            }
+
             // Get the repository's public key for encrypting secrets
             const { data: publicKeyData } = await octokit.actions.getRepoPublicKey({
                 owner: repoOwner,
                 repo: repo,
             });
 
-            // Encrypt and create each secret
             await sodium.ready;
-            
-            for (const [secretName, secretValue] of Object.entries(secrets)) {
-                ctx.logger.info(`Setting up secret: ${secretName}`);
 
-                // Convert key from base64
-                const keyBytes = sodium.from_base64(publicKeyData.key);
-                
-                // Encrypt using libsodium's sealed box (required by GitHub)
-                const encryptedBytes = sodium.crypto_box_seal(secretValue, keyBytes);
-                const encryptedValue = sodium.to_base64(encryptedBytes);
+            for (const [name, value] of Object.entries(secrets)) {
+                ctx.logger.info(`Setting up secret: ${name}`);
 
-                // Create or update the secret
+                const keyBytes = new Uint8Array(Buffer.from(publicKeyData.key, 'base64'));
+                const encryptedBytes = sodium.crypto_box_seal(value, keyBytes);
+                const encryptedValue = Buffer.from(encryptedBytes).toString('base64');
+
                 await octokit.actions.createOrUpdateRepoSecret({
                     owner: repoOwner,
                     repo: repo,
-                    secret_name: secretName,
+                    secret_name: name,
                     encrypted_value: encryptedValue,
                     key_id: publicKeyData.key_id,
                 });
 
-                ctx.logger.info(`✓ Secret ${secretName} created successfully`);
+                ctx.logger.info(`Secret ${name} created`);
             }
 
-            ctx.logger.info(`All secrets set up successfully for ${repoOwner}/${repo}`);
+            ctx.logger.info(`All credentials set up successfully for ${repoOwner}/${repo}`);
         },
     });
 }
