@@ -5649,6 +5649,7 @@ __metadata:
     "@backstage/cli": "npm:^0.35.1"
     "@backstage/plugin-scaffolder-node": "npm:^0.12.2"
     "@backstage/plugin-scaffolder-node-test-utils": "npm:^0.3.6"
+    libsodium-wrappers: "npm:^0.8.0"
   languageName: unknown
   linkType: soft
 
@@ -23317,10 +23318,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"libsodium-wrappers@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "libsodium-wrappers@npm:0.8.0"
+  dependencies:
+    libsodium: "npm:^0.8.0"
+  checksum: 10c0/5e47c1ca673b8771d6a1256a6bdfdd1cd7a381dcf5d7e94120c24411c70e6eb597ff7cf650f08911598efe7534963fe3469554155240705b2ecce53d8b734b24
+  languageName: node
+  linkType: hard
+
 "libsodium@npm:^0.7.15":
   version: 0.7.15
   resolution: "libsodium@npm:0.7.15"
   checksum: 10c0/7bdb529681f30be0533f33921509c36823d18f6fc158d66842e50d33cd9635ebb0dd02eb1fe3b51e192996ff173949f846793e10103371c8b179e5c29525556c
+  languageName: node
+  linkType: hard
+
+"libsodium@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "libsodium@npm:0.8.0"
+  checksum: 10c0/a8c3a8c9057e23ea5a7db2b3e2856cd29f65b340971c4160576a4c18e10aff4e85d4026c4ac0a9e6ae5acb836f8736a6c70aef8d9ed13c1c5bd867a584002ba1
   languageName: node
   linkType: hard
 
