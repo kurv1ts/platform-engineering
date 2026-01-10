@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.serviceFullName }}
+  description: ${{ values.serviceFullName }}
+  annotations:
+    github.com/project-slug: kurv1ts/${{ values.serviceFullName }}
+spec:
+  type: service
+  owner: group:default/${{ values.team }}
+  lifecycle: experimental
+

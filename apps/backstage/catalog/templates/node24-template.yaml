@@ -65,15 +65,6 @@ spec:
         topics: ["idp-managed", "node24", "team-${{ parameters.team | parseEntityRef | pick('name') }}"]
         repoVisibility: public
 
-    # Custom action for updating catalog-info.yaml. Next step registers the component in the catalog
-    - id: updateCatalogInfo
-      name: update-catalog-info
-      action: template:catalog-info-handler
-      input:
-        repoUrl: github.com?owner=kurv1ts&repo=${{ parameters.team | parseEntityRef | pick('name') }}-${{ parameters.repo }}
-        team: ${{ parameters.team }}
-        componentName: ${{ parameters.name }}
-
     # The final step is to register the new component in the catalog.
     - id: register
       name: Register
