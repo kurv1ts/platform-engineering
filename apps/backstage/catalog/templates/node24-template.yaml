@@ -63,7 +63,7 @@ spec:
         repoUrl: github.com?owner=kurv1ts&repo=${{ parameters.team | parseEntityRef | pick('name') }}-${{ parameters.repo }}
         defaultBranch: "main"
         topics: ["idp-managed", "node24", "team:{{ parameters.team | parseEntityRef | pick('name') }}"]
-        repositoryVisibility: public
+        repoVisibility: public
 
     # Custom action for updating catalog-info.yaml. Next step registers the component in the catalog
     - id: updateCatalogInfo
