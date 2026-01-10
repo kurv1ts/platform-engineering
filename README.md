@@ -147,10 +147,7 @@ docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n
 
 ## Documentation
 
-- [Architecture Overview](docs/001-architecture-overview.md) - Design decisions and component interactions
-- [ArgoCD Bootstrap](docs/002-argocd-bootstrap.md) - Setting up GitOps
-- [Backstage Image](docs/003-backstage-image.md) - Building and deploying Backstage
-- [Sealed Secrets](docs/004-sealed-secrets.md) - Secret management approach
+[/docs](docs) 
 
 ## Notes
 
