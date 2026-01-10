@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: backstage-postgres
   namespace: backstage
 spec:
+  serviceName: backstage-postgres
   replicas: 1
   selector:
     matchLabels:
@@ -35,7 +36,14 @@ spec:
             - mountPath: /var/lib/postgresql/data
               name: postgresdb
               subPath: data
-      volumes:
-        - name: postgresdb
-          persistentVolumeClaim:
-            claimName: backstage-postgres-storage-claim
+  volumeClaimTemplates:
+    - metadata:
+        name: postgresdb
+      spec:
+        storageClassName: standard
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2G
+
