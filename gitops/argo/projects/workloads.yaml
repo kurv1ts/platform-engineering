@@ -7,8 +7,8 @@ spec:
   description: Workload applications
 
   sourceRepos:
-    - git@github.com:kurv1ts/platform-engineering.git
-    - git@github.com:kurv1ts/platform-scaffolded-api.git
+    - https://github.com/kurv1ts/platform-engineering
+    - https://github.com/kurv1ts/platform-scaffolded-api.git
 
   destinations:
     - server: https://kubernetes.default.svc
