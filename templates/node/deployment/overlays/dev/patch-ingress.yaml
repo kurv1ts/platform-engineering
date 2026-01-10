@@ -1,6 +1,8 @@
-- op: replace
-  path: /spec/rules/0/host
-  value: ${{ values.serviceFullName }}.local
-- op: replace
-  path: /spec/ingressClassName
-  value: traefik-dev
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${{ values.serviceFullName }}
+spec:
+  ingressClassName: traefik-dev
+  rules:
+    - host: ${{ values.serviceFullName }}.local
