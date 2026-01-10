@@ -48,6 +48,9 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
                 DOCKER_TOKEN: dockerToken,
             };
 
+            // Environments to configure
+            const environments = ['dev', 'prod'];
+
             const normalizedUrl = (repoUrl as string).includes('://') ? (repoUrl as string) : `https://${repoUrl}`;
             const integration = customActionContext.integrations.byUrl(normalizedUrl);
 
@@ -87,41 +90,69 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
                 throw new Error(`Invalid repoUrl: ${repoUrl}`);
             })(normalizedUrl);
 
-            for (const [name, value] of Object.entries(envVariables)) {
-                ctx.logger.info(`Setting up variable: ${name}`);
-                await octokit.actions.createRepoVariable({
-                    owner: repoOwner,
-                    repo: repo,
-                    name: name,
-                    value: value,
-                });
-                ctx.logger.info(`✓ Variable ${name} created`);
-            }
+            await sodium.ready;
 
-            // Get the repository's public key for encrypting secrets
-            const { data: publicKeyData } = await octokit.actions.getRepoPublicKey({
+            // Get repository ID (required for environment APIs)
+            const { data: repoData } = await octokit.repos.get({
                 owner: repoOwner,
                 repo: repo,
             });
+            const repositoryId = repoData.id;
 
-            await sodium.ready;
+            for (const env of environments) {
+                ctx.logger.info(`Configuring environment: ${env}`);
 
-            for (const [name, value] of Object.entries(secrets)) {
-                ctx.logger.info(`Setting up secret: ${name}`);
 
-                const keyBytes = new Uint8Array(Buffer.from(publicKeyData.key, 'base64'));
-                const encryptedBytes = sodium.crypto_box_seal(value, keyBytes);
-                const encryptedValue = Buffer.from(encryptedBytes).toString('base64');
+                try {
+                    await octokit.repos.createOrUpdateEnvironment({
+                        owner: repoOwner,
+                        repo: repo,
+                        environment_name: env,
+                    });
+                    ctx.logger.info(`✓ Environment ${env} ready`);
+                } catch (error: any) {
+                    ctx.logger.warn(`Could not create environment ${env}: ${error.message}`);
+                }
 
-                await octokit.actions.createOrUpdateRepoSecret({
-                    owner: repoOwner,
-                    repo: repo,
-                    secret_name: name,
-                    encrypted_value: encryptedValue,
-                    key_id: publicKeyData.key_id,
+
+                for (const [name, value] of Object.entries(envVariables)) {
+                    try {
+                        ctx.logger.info(`Setting up variable ${name} for ${env}`);
+                        await octokit.actions.createEnvironmentVariable({
+                            repository_id: repositoryId,
+                            environment_name: env,
+                            name: name,
+                            value: value,
+                        });
+                        ctx.logger.info(`✓ Variable ${name} created for ${env}`);
+                    } catch (error: any) {
+                        ctx.logger.warn(`Could not create variable ${name} for ${env}: ${error.message}`);
+                    }
+                }
+
+                const { data: envPublicKey } = await octokit.actions.getEnvironmentPublicKey({
+                    repository_id: repositoryId,
+                    environment_name: env,
                 });
 
-                ctx.logger.info(`Secret ${name} created`);
+
+                for (const [name, value] of Object.entries(secrets)) {
+                    ctx.logger.info(`Setting up secret ${name} for ${env}`);
+
+                    const keyBytes = new Uint8Array(Buffer.from(envPublicKey.key, 'base64'));
+                    const encryptedBytes = sodium.crypto_box_seal(value, keyBytes);
+                    const encryptedValue = Buffer.from(encryptedBytes).toString('base64');
+
+                    await octokit.actions.createOrUpdateEnvironmentSecret({
+                        repository_id: repositoryId,
+                        environment_name: env,
+                        secret_name: name,
+                        encrypted_value: encryptedValue,
+                        key_id: envPublicKey.key_id,
+                    });
+
+                    ctx.logger.info(`Secret ${name} created for ${env}`);
+                }
             }
 
             ctx.logger.info(`All credentials set up successfully for ${repoOwner}/${repo}`);
