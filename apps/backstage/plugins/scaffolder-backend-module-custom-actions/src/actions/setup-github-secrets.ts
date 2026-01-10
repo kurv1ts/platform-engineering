@@ -65,11 +65,22 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
 
             const { repoOwner, repo } = ((urlStr: string) => {
                 const url = new URL(urlStr);
+                
+                // Try query parameter format first (github.com?owner=X&repo=Y)
                 const ownerParam = url.searchParams.get('owner');
                 const repoParam = url.searchParams.get('repo');
                 if (ownerParam && repoParam) {
                     return { repoOwner: ownerParam, repo: repoParam };
                 }
+                
+                // Try full URL format (https://github.com/owner/repo.git)
+                const pathParts = url.pathname.split('/').filter(Boolean);
+                if (pathParts.length >= 2) {
+                    const owner = pathParts[0];
+                    const repository = pathParts[1].replace(/\.git$/, '');
+                    return { repoOwner: owner, repo: repository };
+                }
+                
                 throw new Error(`Invalid repoUrl: ${repoUrl}`);
             })(normalizedUrl);
 
