@@ -1,15 +1,16 @@
 # Architecture Overview
 
+## Kubernetes cluster diagram
 
-## Design Philosophy
+![Kubernetes cluster](images/k8s-cluster-diagram.png "Kubernetes cluster")
+
+## Platform Design Philosophy
 
 The platform is built around three core principles:
 
 1. **Self-Service**: Developers should be able to create and deploy services without filing tickets or handling infrastructure themselves
 2. **Golden Paths**: Provide opinionated templates that encode best practices
 3. **GitOps**: All changes flow through Git, providing audit trails and easy rollbacks
-
-
 
 ## The Golden Path
 
@@ -117,13 +118,16 @@ infra/modules/
 - Consistent metrics across all services
 - Trace correlation across service boundaries
 
-## Network Architecture
+## Network Diagram
 
-[![](https://mermaid.ink/img/pako:eNqFUV1PwjAU_SvNfeaj-wC2xvAgPmg0SoDExM2HspVtYVtJ24EK_Hc7xgYG0ftwe257zr3t6RYCHjIgsEj5JoipUOhp4udIx0OumMiZ8mrwXu1XWRbzSNBVjIK0kPoceY9JHqJRVR2pZcwEZYtk6R1X3TYSTMozxgk1TVcpVQsuMuSNa_Q8PZOUcUuDpVQ0Yl6DEBlgPDjjsTz8c86Gi2XKaSiR93qEl4Om68Dwpkysk0BPGL9MZpcE8yqhuUIDftqL2u3hjjiOg7s629audqyi1baVrHsuFUHz-rWdlAc0vZmL7nBMVUxQd3cy5ZpaVtds09_U5Uv_E86vCE1oQSSSEIgSBWtBxkRGyxK2ZUsfVMwy5gPRMKRi6YOf77VmRfM3zrNaJngRxUAWNJW6KlYhVewuofq7ThTtJBMjXuQKtGWHFkC28AGkb3RME5uWZdmOjW3s9FvwCcR1O3hg9XuuaWiLsbFvwddhJu44hmlb2DV7ds92B_3e_huBC-73?type=png)](https://mermaid.live/edit#pako:eNqFUV1PwjAU_SvNfeaj-wC2xvAgPmg0SoDExM2HspVtYVtJ24EK_Hc7xgYG0ftwe257zr3t6RYCHjIgsEj5JoipUOhp4udIx0OumMiZ8mrwXu1XWRbzSNBVjIK0kPoceY9JHqJRVR2pZcwEZYtk6R1X3TYSTMozxgk1TVcpVQsuMuSNa_Q8PZOUcUuDpVQ0Yl6DEBlgPDjjsTz8c86Gi2XKaSiR93qEl4Om68Dwpkysk0BPGL9MZpcE8yqhuUIDftqL2u3hjjiOg7s629audqyi1baVrHsuFUHz-rWdlAc0vZmL7nBMVUxQd3cy5ZpaVtds09_U5Uv_E86vCE1oQSSSEIgSBWtBxkRGyxK2ZUsfVMwy5gPRMKRi6YOf77VmRfM3zrNaJngRxUAWNJW6KlYhVewuofq7ThTtJBMjXuQKtGWHFkC28AGkb3RME5uWZdmOjW3s9FvwCcR1O3hg9XuuaWiLsbFvwddhJu44hmlb2DV7ds92B_3e_huBC-73)
+![Kubernetes network diagram](images/k8s-network-diagram.png "Kubernetes network diagram")
 
 **Port Mappings (Kind):**
 - `8880` -> cluster port `80` (HTTP)
 - `8843` -> cluster port `443` (HTTPS)
+
+#### TODO
+Proper NetworkPolicies
 
 ### Ingress routing
 Routing is host-based (for example `backstage.local`) and uses path `/`, so `http://localhost:8880/backstage` will not match any ingress rule. Use `http://backstage.local:8880/` (with a hosts entry) or send the `Host: backstage.local` header when hitting `http://localhost:8880/`.
