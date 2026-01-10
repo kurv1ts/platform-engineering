@@ -9,3 +9,4 @@ data:
   APP_BASE_URL: "http://localhost"
   BACKEND_BASE_URL: "http://localhost"
   GITHUB_ORG: kurv1ts
+  DOCKER_USERNAME: p6hi

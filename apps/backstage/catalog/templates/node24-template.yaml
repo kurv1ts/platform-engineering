@@ -65,6 +65,12 @@ spec:
         topics: ["idp-managed", "node24", "team-${{ parameters.team | parseEntityRef | pick('name') }}"]
         repoVisibility: public
 
+    - id: setupSecrets
+      name: Setup GitHub Secrets
+      action: template:setup-github-secrets
+      input:
+        repoUrl: ${{ steps['publish'].output.remoteUrl }}
+
     # The final step is to register the new component in the catalog.
     - id: register
       name: Register

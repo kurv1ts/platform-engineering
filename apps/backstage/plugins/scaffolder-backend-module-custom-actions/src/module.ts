@@ -1,5 +1,6 @@
 import { createBackendModule } from "@backstage/backend-plugin-api";
 import { createCatalogInfoHandlerAction } from "./actions/create-catalog-info-yaml";
+import { createSetupGithubSecretsAction } from "./actions/setup-github-secrets";
 import { createCustomActionContext } from "./customActionContext";
 import { scaffolderActionsExtensionPoint } from '@backstage/plugin-scaffolder-node';
 import { coreServices } from '@backstage/backend-plugin-api';
@@ -17,7 +18,11 @@ export const scaffolderModule = createBackendModule({
         config: coreServices.rootConfig
       },
       async init({ scaffolderActions, config }) {
-        scaffolderActions.addActions(createCatalogInfoHandlerAction(createCustomActionContext(config)));
+        const context = createCustomActionContext(config);
+        scaffolderActions.addActions(
+          createCatalogInfoHandlerAction(context),
+          createSetupGithubSecretsAction(context)
+        );
       }
     });
   },

@@ -37,6 +37,9 @@ cors:
 company:
   github:
     owner: ${GITHUB_ORG}
+  docker:
+    username: ${DOCKER_USERNAME}
+    token: ${DOCKER_TOKEN}
 
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
