@@ -2,6 +2,7 @@
 
 Lean Express service with observability baked in.
 
+
 - Health and metrics endpoints (`/health`, `/metrics` via prom-client histogram/counter)
 - OpenTelemetry auto-instrumentation with console span exporter
 - JSON logging with winston, enriched with trace/span IDs
@@ -17,3 +18,7 @@ Lean Express service with observability baked in.
 ## Local usage
 - `yarn install`
 - `yarn dev` for live reload or `yarn build && yarn start` to run the compiled app`
+
+### Deployments
+- To deploy a new version of the application, build a new application image by running `build-push-image.yaml` Github Action.
+- Changes are picked up by ArgoCD and deployed automatically.

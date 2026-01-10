@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${{ values.name }}
+  name: ${{ values.serviceFullName }}
 spec:
   selector:
-    app: ${{ values.name }}
+    app: ${{ values.serviceFullName }}
   ports:
     - protocol: TCP
       port: 80

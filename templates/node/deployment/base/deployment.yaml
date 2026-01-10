@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${{ values.name }}
+  name: ${{ values.serviceFullName }}
   labels:
-    app: ${{ values.name }}
+    app: ${{ values.serviceFullName }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${{ values.name }}
+      app: ${{ values.serviceFullName }}
   template:
     metadata:
       labels:
-        app: ${{ values.name }}
+        app: ${{ values.serviceFullName }}
     spec:
       containers:
         - name: k8s-node-api
-          image: ${{ values.name }}
+          image: ${{ values.serviceFullName }}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           envFrom:
             - configMapRef:
-                name: ${{ values.name }}-config
+                name: ${{ values.serviceFullName }}-config
           resources:
             requests:
               cpu: 100m

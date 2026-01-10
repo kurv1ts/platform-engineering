@@ -15,6 +15,11 @@ spec:
             - repositoryMatch:
                 paths:
                   - "deployment/overlays/dev/kustomization.yaml"
+    - git:
+        repoURL: "{{ .url }}"
+        revision: main
+        files:
+          - path: ".argocd/metadata.yaml"
   template:
     metadata:
       name: "{{ .repository }}-dev"
@@ -26,10 +31,10 @@ spec:
         path: deployment/overlays/dev
       destination:
         server: https://kubernetes.default.svc
-        namespace: dev
+        namespace: "{{ .team }}-dev"
       syncPolicy:
-        # automated:
-        #   prune: true
-        #   selfHeal: true
+        automated:
+          prune: true
+          selfHeal: true
         syncOptions:
           - CreateNamespace=true

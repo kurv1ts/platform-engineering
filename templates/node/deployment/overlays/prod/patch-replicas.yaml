@@ -1,6 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${{ values.name }}
+  name: ${{ values.serviceFullName }}
 spec:
   replicas: 2
