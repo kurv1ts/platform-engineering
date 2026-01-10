@@ -11,7 +11,7 @@ spec:
         generators:
           - scmProvider:
               github:
-                organization: kurv1ts
+                organization: world-of-kurv1ts
                 topic: idp-managed
                 filters:
                   - repositoryMatch:
