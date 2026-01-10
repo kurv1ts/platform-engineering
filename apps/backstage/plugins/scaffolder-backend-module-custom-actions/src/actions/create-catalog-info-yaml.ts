@@ -38,7 +38,7 @@ export function createCatalogInfoHandlerAction(customActionContext: CustomAction
             const templateSpecType = templateInfo?.entity;
 
             ctx.logger.info(`## Template name: ${templateInfo?.entityRef}`);
-            ctx.logger.info(`## Template spec type: ${templateSpecType}`);
+            ctx.logger.info(`## Template spec type: ${JSON.stringify(templateSpecType)}`);
 
             const team = ctx.input.team.split("/").pop() ?? ctx.input.team;
 
