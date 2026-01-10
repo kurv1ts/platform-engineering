@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${{ values.serviceFullName }}-config
+data:
+  NODE_ENV: "production"
+  ENVIRONMENT: "prod"
+  SERVICE_NAMESPACE: "${{ values.team }}-prod"
+

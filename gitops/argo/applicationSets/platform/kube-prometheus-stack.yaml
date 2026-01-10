@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-kube-prometheus-stack
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+            name: kube-prometheus-stack
+            namespace: observability-dev
+            chart: kube-prometheus-stack
+            repo: https://prometheus-community.github.io/helm-charts
+            version: "80.13.3"
+
+  template:
+    metadata:
+      name: "{{name}}-{{env}}"
+      annotations:
+        argocd.argoproj.io/sync-wave: "2"
+    spec:
+      project: platform
+
+      sources:
+        - repoURL: "{{repo}}"
+          chart: "{{chart}}"
+          targetRevision: "{{version}}"
+          helm:
+            valueFiles:
+              - $values/gitops/apps/platform/observability/kube-prometheus-stack/values/values.yaml
+              - $values/gitops/apps/platform/observability/kube-prometheus-stack/values/values-{{env}}.yaml
+
+        - repoURL: git@github.com:kurv1ts/platform-engineering.git
+          targetRevision: main
+          ref: values
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

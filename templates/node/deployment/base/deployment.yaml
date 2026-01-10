@@ -15,11 +15,16 @@ spec:
         app: ${{ values.serviceFullName }}
     spec:
       containers:
-        - name: k8s-node-api
+        - name: ${{ values.serviceFullName }}
           image: ${{ values.serviceFullName }}
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: metrics
+              containerPort: 3000
+              protocol: TCP
           envFrom:
             - configMapRef:
                 name: ${{ values.serviceFullName }}-config

@@ -52,7 +52,7 @@ platform-engineering/
 | **Infrastructure** | Terraform + Kind | Local K8s cluster provisioning |
 | **Ingress** | Traefik | Traffic routing, TLS termination |
 | **Secrets** | Sealed Secrets | GitOps-compatible secret management |
-| **Observability** | OpenTelemetry, Prometheus | Tracing, metrics, structured logging |
+| **Observability** | Prometheus Operator, Grafana | Metrics collection, visualization |
 | **Config Management** | Kustomize | Environment-specific overlays |
 
 ## What I Built
@@ -147,16 +147,16 @@ docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n
 
 ## Documentation
 
-[/docs](docs) 
+[More detailed documentation](docs) 
 
 ## Notes
 
 This project intentionally avoids over-engineering. It runs on a single Kind cluster, uses opinionated defaults, and optimizes for clarity over flexibility. The goal is to understand platform tradeoffs firsthand, not to simulate enterprise scale.
 
-Things I deliberately left out:
+Things I deliberately left out (for now):
 - Multi-cluster federation (adds complexity before it's needed)
 - Vault for secrets (Sealed Secrets is good enough for learning GitOps patterns)
-- Fancy dashboards (the observability stack works, visualization can come later)
+- Loki and Tempo (Prometheus + Grafana covers metrics; logs/traces are phase 2)
 
 What I learned building this:
 - **GitOps is great until it isn't** — debugging sync failures requires understanding both Git state and cluster state

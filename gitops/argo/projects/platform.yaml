@@ -6,10 +6,10 @@ metadata:
 spec:
   description: Platform-level components (ingress, infra services)
 
-  # Allowed source repositories (Git + Helm)
   sourceRepos:
     - git@github.com:kurv1ts/platform-engineering.git
     - https://helm.traefik.io/traefik
+    - https://prometheus-community.github.io/helm-charts
 
   # Single cluster, any namespace
   destinations:

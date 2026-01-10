@@ -6,3 +6,4 @@ resources:
   - platform-traefik.yaml
   - sealed-secrets.yaml
   - platform-resources.yaml
+  - kube-prometheus-stack.yaml

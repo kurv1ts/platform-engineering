@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${{ values.team }}-prod
+  labels:
+    team: ${{ values.team }}
+    env: prod
+    monitoring: enabled
+
