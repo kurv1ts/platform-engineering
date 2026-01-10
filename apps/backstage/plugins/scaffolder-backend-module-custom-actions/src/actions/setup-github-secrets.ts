@@ -2,7 +2,7 @@ import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
 import { Octokit } from '@octokit/rest';
 import { CustomActionContext } from '../customActionContext';
 import { TemplateExample } from '@backstage/plugin-scaffolder-node';
-import nacl from 'tweetnacl';
+import sodium from 'libsodium-wrappers';
 
 /**
  * Creates a custom Scaffolder action to set up GitHub repository secrets.
@@ -91,17 +91,17 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
             });
 
             // Encrypt and create each secret
+            await sodium.ready;
+            
             for (const [secretName, secretValue] of Object.entries(secrets)) {
                 ctx.logger.info(`Setting up secret: ${secretName}`);
 
-                // Convert the secret and key to Uint8Array  
-                const messageBytes = new Uint8Array(Buffer.from(secretValue));
-                const keyBytes = new Uint8Array(Buffer.from(publicKeyData.key, 'base64'));
-
-                // Encrypt using tweetnacl's sealed box (crypto_box_seal equivalent)
-                const nonce = new Uint8Array(nacl.box.nonceLength);
-                const encryptedBytes = nacl.box(messageBytes, nonce, keyBytes, keyBytes);
-                const encryptedValue = Buffer.from(encryptedBytes).toString('base64');
+                // Convert key from base64
+                const keyBytes = sodium.from_base64(publicKeyData.key);
+                
+                // Encrypt using libsodium's sealed box (required by GitHub)
+                const encryptedBytes = sodium.crypto_box_seal(secretValue, keyBytes);
+                const encryptedValue = sodium.to_base64(encryptedBytes);
 
                 // Create or update the secret
                 await octokit.actions.createOrUpdateRepoSecret({
