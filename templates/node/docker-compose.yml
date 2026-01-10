@@ -4,36 +4,7 @@ services:
     build: .
     env_file:
       - .env
-    ports: ["7000:7000"]
-    networks:
-      - general-network
-    restart: unless-stopped
-
-  collector:
-    container_name: collector
-    image: otel/opentelemetry-collector-contrib:0.141.0
-    command: ["--config=/etc/otel-collector.yaml"]
-    volumes: ["./observability/otel-collector.yaml:/etc/otel-collector.yaml:ro"]
-    ports: ["4317:4317", "4318:4318", "8889:8889"] # 8889 = prometheus exporter
-    networks:
-      - general-network
-    restart: unless-stopped
-
-  prometheus:
-    container_name: prometheus_metrics
-    image: prom/prometheus:v3.8.0
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - general-network
-    restart: unless-stopped
-  
-  grafana:
-    container_name: grafana
-    image: grafana/grafana:12.4.0-19913286788-ubuntu
-    ports: ["3001:3000"]
+    ports: ["3000:3000"]
     networks:
       - general-network
     restart: unless-stopped
