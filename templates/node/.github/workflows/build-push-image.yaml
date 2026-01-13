@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="$(echo "${GITHUB_SHA}" | cut -c1-12)"
+          TAG="$(echo "${GITHUB_SHA}")"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           IMAGE_NAME="$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')"
           echo "image_name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
@@ -96,20 +96,13 @@ jobs:
             exit 0
           fi
 
-          yq -i '
-            .images = (.images // []) |
-            (if any(.images[].name == strenv(IMAGE_NAME)) then
-               .images |= map(
-                 if .name == strenv(IMAGE_NAME) then
-                   .newTag = strenv(TAG) | .newName = (strenv(DOCKER_USERNAME) + "/" + strenv(IMAGE_NAME))
-                 else
-                   .
-                 end
-               )
-             else
-               .images += [{"name": strenv(IMAGE_NAME), "newTag": strenv(TAG), "newName": (strenv(DOCKER_USERNAME) + "/" + strenv(IMAGE_NAME))}]
-             end)
-          ' "$KUSTOMIZATION"
+          read -r -d '' YQ_EXPR <<'YQEOF' || true
+          .images = (
+            ((.images // []) | map(select(.name != strenv(IMAGE_NAME)))) +
+            [{"name": strenv(IMAGE_NAME), "newTag": strenv(TAG), "newName": (strenv(DOCKER_USERNAME) + "/" + strenv(IMAGE_NAME))}]
+          )
+          YQEOF
+          yq eval -i "$YQ_EXPR" "$KUSTOMIZATION"
 
       - name: Commit and push changes (if any)
         shell: bash
