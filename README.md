@@ -58,7 +58,7 @@ platform-engineering/
 ## What I Built
 
 ### Custom Backstage Scaffolder Action
-Extended Backstage with a custom scaffolder action that automatically generates and commits `catalog-info.yaml` to new repositories, ensuring every service is registered in the software catalog from day one. I considered using a separate CI job for this, but embedding it in the scaffolder keeps the entire flow in one place and avoids timing issues.
+Extended Backstage with a custom scaffolder action that automatically adds environment variables & secrets per Github repository environment for the CI pipeline which builds and pushes the application image.
 
 #### Authentication for Backstage
 Backstage UI sign-in uses GitHub OAuth (OAuth2) so users and groups map cleanly to GitHub identities, which then drives ownership in the catalog and template permissions.

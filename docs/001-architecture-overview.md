@@ -25,9 +25,8 @@ Developer visits Backstage and fills out a form selecting:
 ### Step 2: Repository Scaffolding
 Backstage executes the template which:
 1. Creates a new GitHub repository from the template, adds topic `idp-managed` to the repository
-2. Runs custom action to generate `catalog-info.yaml`
+2. Runs custom action to set environment variables & secrets.
 3. Registers the component in Backstage's software catalog
-4. Notifies the developer
 
 ### Step 3: Automatic Deployment
 The ApplicationSet's SCM Provider generator:
@@ -55,7 +54,7 @@ The service is deployed with:
 - Built-in scaffolder for templates
 
 **Custom Actions:**
-- `template:catalog-info-handler` - Custom scaffolder action that commits template's metadata to new repos.
+- `template:setup-github-secrets` - Custom scaffolder action adds Github environment variables & secrets to CI pipeline.
 
 ### ArgoCD (GitOps Layer)
 
