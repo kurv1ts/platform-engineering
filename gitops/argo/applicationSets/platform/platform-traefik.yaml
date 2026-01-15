@@ -3,6 +3,10 @@ kind: ApplicationSet
 metadata:
   name: platform-traefik
   namespace: argocd
+  labels:
+    owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
 spec:
   generators:
     - list:
@@ -17,6 +21,10 @@ spec:
   template:
     metadata:
       name: "{{name}}-{{env}}"
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
       annotations:
         argocd.argoproj.io/sync-wave: "2"
     spec:
@@ -43,5 +51,10 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        managedNamespaceMetadata:
+          labels:
+            owner: platform
+            app.kubernetes.io/part-of: platform
+            app.kubernetes.io/managed-by: argocd
         syncOptions:
           - CreateNamespace=true

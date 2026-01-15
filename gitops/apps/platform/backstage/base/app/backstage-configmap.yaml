@@ -3,6 +3,10 @@ kind: ConfigMap
 metadata:
   name: backstage-config
   namespace: backstage
+  labels:
+    owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
 data:
   POSTGRES_HOST: backstage-postgres
   POSTGRES_PORT: "5432"

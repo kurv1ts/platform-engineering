@@ -3,6 +3,10 @@ kind: ApplicationSet
 metadata:
   name: platform-resources
   namespace: argocd
+  labels:
+    owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
 spec:
   goTemplate: true
   generators:

@@ -3,6 +3,10 @@ kind: StatefulSet
 metadata:
   name: backstage-postgres
   namespace: backstage
+  labels:
+    owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
 spec:
   serviceAccountName: backstage-service-account
   serviceName: backstage-postgres

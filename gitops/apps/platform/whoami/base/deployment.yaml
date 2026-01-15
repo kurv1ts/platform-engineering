@@ -12,6 +12,7 @@ spec:
       labels:
         app: whoami
     spec:
+      serviceAccountName: whoami-service-account
       nodeSelector:
         role: workloads
       containers:

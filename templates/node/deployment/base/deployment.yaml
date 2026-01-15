@@ -14,7 +14,8 @@ spec:
       labels:
         app: ${{ values.serviceFullName }}
     spec:
-      serviceAccountName: ${{ values.team }}-service-account
+      serviceAccountName: ${{ values.serviceFullName }}-service-account
+      automountServiceAccountToken: false
       containers:
         - name: ${{ values.serviceFullName }}
           image: ${{ values.serviceFullName }}

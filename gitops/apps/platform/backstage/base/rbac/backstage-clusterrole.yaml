@@ -13,7 +13,6 @@ rules:
       - pods/log
       - services
       - configmaps
-      - secrets
       - limitranges
       - resourcequotas
       - namespaces

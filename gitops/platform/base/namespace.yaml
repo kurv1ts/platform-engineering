@@ -4,6 +4,8 @@ metadata:
   name: platform
   labels:
     owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
     # Pod Security Admission (PSA)
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/enforce-version: latest

@@ -3,6 +3,10 @@ kind: ApplicationSet
 metadata:
   name: platform-kube-prometheus-stack
   namespace: argocd
+  labels:
+    owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
 spec:
   generators:
     - list:
@@ -43,5 +47,10 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        managedNamespaceMetadata:
+          labels:
+            owner: platform
+            app.kubernetes.io/part-of: platform
+            app.kubernetes.io/managed-by: argocd
         syncOptions:
           - CreateNamespace=true
