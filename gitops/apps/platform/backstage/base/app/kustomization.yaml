@@ -6,3 +6,4 @@ resources:
   - backstage-deployment.yaml
   - backstage-ingress.yaml
   - backstage-service.yaml
+  - backstage-serviceaccount.yaml

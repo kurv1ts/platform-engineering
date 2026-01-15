@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: team-resources
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        revision: main
+        directories:
+          - path: gitops/platform/teams/*/overlays/*
+  template:
+    metadata:
+      name: "team-resources-{{index .path.segments 3}}-{{.path.basename}}"
+    spec:
+      project: platform
+      source:
+        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: "{{.path.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{index .path.segments 3}}-{{.path.basename}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+

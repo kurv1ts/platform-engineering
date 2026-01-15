@@ -79,9 +79,16 @@ Implemented a hierarchical ArgoCD structure with separate projects for `bootstra
 **Key file:** [`gitops/argo/root-application.yaml`](gitops/argo/root-application.yaml)
 
 ### Auto-Discovery of New Services
+
+#### Currently
+Hardcoded repository url is in the responsible applicationSet because for auto-discovery, Github SCM generator needs to be used which requires Github Org and relocation of this project.
+
+#### Ideally
 ApplicationSet with SCM Provider generator automatically discovers repositories tagged with `idp-managed` and deploys them without manual ArgoCD configuration. The tradeoff: this couples deploy decisions to GitHub topics, which wouldn't scale to a multi-org setup. Good enough for now.
 
-**Key file:** [`gitops/argo/applicationSets/discovered-apps.yaml`](gitops/argo/applicationSets/discovered-apps.yaml)
+
+
+**Key file:** [`gitops/argo/applicationSets/workloads/discovered-apps.yaml`](gitops/argo/applicationSets/workloads/discovered-apps.yaml)
 
 ### Observability-First Service Templates
 Node.js service template with OpenTelemetry auto-instrumentation, Prometheus metrics, and structured JSON logging baked in. The alternative was letting teams add observability themselves, but that leads to inconsistent instrumentation and gaps when debugging cross-service issues.
@@ -129,21 +136,15 @@ docker build . -t backstage:0.0.1
 docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n k8s.io images import -
 ```
 
-## Project Status
+## TODO
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Backstage IDP | ✅ Working | Custom scaffolder action functional |
-| ArgoCD GitOps | ✅ Working | App-of-Apps deployed |
-| Kind Cluster | ✅ Working | Terraform provisioned |
-| Service Templates | ✅ Working | Node.js with observability |
-| CI/CD Pipelines | ✅ Working | Backstage CI pushes to Docker Hub, updates GitOps |
+| Component |
+|-----------|
 | Auto-Discovery | 🔧 WIP | Need to create a Github org for topic based repo discovery  |
-| RBAC | ⏸️ Planned |  |
-| NetworkPolicies | ⏸️ Planned |  |
-| ResourceQuota | ⏸️ Planned |  |
-| Ingress -> Gateway API | ⏸️ Planned |  |
-
+| RBAC | 
+| NetworkPolicies |
+| ResourceQuota |
+| Ingress -> Gateway API |
 
 ## Documentation
 

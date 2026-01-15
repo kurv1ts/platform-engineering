@@ -23,4 +23,12 @@ metadata:
   annotations:
     github.com/user-login: kurv1ts
 spec:
-  memberOf: [platform]
+  memberOf: [platform, team-a]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-a
+spec:
+  type: team
+  children: []

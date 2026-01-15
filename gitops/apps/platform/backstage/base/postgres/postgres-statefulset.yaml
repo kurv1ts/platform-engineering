@@ -4,6 +4,7 @@ metadata:
   name: backstage-postgres
   namespace: backstage
 spec:
+  serviceAccountName: backstage-sa
   serviceName: backstage-postgres
   replicas: 1
   selector:
@@ -16,6 +17,7 @@ spec:
       labels:
         app: backstage-postgres
     spec:
+      serviceAccountName: backstage-sa
       nodeSelector:
         role: platform
       containers:
