@@ -13,7 +13,7 @@ spec:
       labels:
         app: backstage
     spec:
-      serviceAccountName: backstage-sa
+      serviceAccountName: backstage-service-account
       nodeSelector:
         role: platform
       containers:

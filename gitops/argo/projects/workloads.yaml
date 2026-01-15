@@ -19,5 +19,27 @@ spec:
       kind: Namespace
 
   namespaceResourceWhitelist:
-    - group: "*"
-      kind: "*"
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+
+    - group: batch
+      kind: Job
+    - group: batch
+      kind: CronJob
+
+    - group: networking.k8s.io
+      kind: Ingress
+
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler

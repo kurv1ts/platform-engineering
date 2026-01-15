@@ -14,7 +14,7 @@ spec:
       labels:
         app: ${{ values.serviceFullName }}
     spec:
-      serviceAccountName: ${{ values.team }}-sa
+      serviceAccountName: ${{ values.team }}-service-account
       containers:
         - name: ${{ values.serviceFullName }}
           image: ${{ values.serviceFullName }}
