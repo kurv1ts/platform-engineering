@@ -10,6 +10,7 @@ spec:
     - git@github.com:kurv1ts/platform-engineering.git
     - https://helm.traefik.io/traefik
     - https://prometheus-community.github.io/helm-charts
+    - https://github.com/prometheus-operator/prometheus-operator.git
 
   # Single cluster, any namespace
   destinations:
