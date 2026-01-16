@@ -31,6 +31,7 @@ spec:
           chart: "{{chart}}"
           targetRevision: "{{version}}"
           helm:
+            skipCrds: true  # CRDs are managed by separate applicationSet
             valueFiles:
               - $values/gitops/apps/platform/observability/kube-prometheus-stack/values/values.yaml
               - $values/gitops/apps/platform/observability/kube-prometheus-stack/values/values-{{env}}.yaml

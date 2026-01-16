@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-prometheus-operator-crds
+  namespace: argocd
+  labels:
+    owner: platform
+    app.kubernetes.io/part-of: platform
+    app.kubernetes.io/managed-by: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: default
+            version: "v0.88.0"
+
+  template:
+    metadata:
+      name: "prometheus-operator-crds"  # Single CRD app for the entire cluster
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"  # Install before the main chart
+    spec:
+      project: platform
+      source:
+        repoURL: https://github.com/prometheus-operator/prometheus-operator.git
+        targetRevision: "{{version}}"
+        path: example/prometheus-operator-crd
+
+      destination:
+        server: https://kubernetes.default.svc
+
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - ServerSideApply=true  # Use server-side apply to avoid annotation size limits
+

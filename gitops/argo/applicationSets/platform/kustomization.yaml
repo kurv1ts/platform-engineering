@@ -7,4 +7,5 @@ resources:
   - sealed-secrets.yaml
   - platform-resources.yaml
   - team-resources.yaml
+  - prometheus-operator-crds.yaml
   - kube-prometheus-stack.yaml
