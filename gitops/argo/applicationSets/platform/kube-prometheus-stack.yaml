@@ -20,7 +20,7 @@ spec:
 
   template:
     metadata:
-      name: "{{name}}-{{env}}"
+      name: "{{name}}"
       annotations:
         argocd.argoproj.io/sync-wave: "2"
     spec:
