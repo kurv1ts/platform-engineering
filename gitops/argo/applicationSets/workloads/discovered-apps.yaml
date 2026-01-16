@@ -55,8 +55,8 @@ spec:
           selfHeal: true
         managedNamespaceMetadata:
           labels:
-            owner: {{ .team }}
-            app.kubernetes.io/part-of: {{ .team }}
+            owner: "{{ .team }}"
+            app.kubernetes.io/part-of: "{{ .team }}"
             app.kubernetes.io/managed-by: argocd
             pod-security.kubernetes.io/enforce: baseline
             pod-security.kubernetes.io/enforce-version: latest
