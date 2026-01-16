@@ -54,3 +54,4 @@ spec:
             app.kubernetes.io/managed-by: argocd
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true
