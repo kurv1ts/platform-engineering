@@ -12,3 +12,6 @@ volume
 .vscode
 
 notes.md
+
+backstage-secrets.yaml
+postgres-secrets.yaml

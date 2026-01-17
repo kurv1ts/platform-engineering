@@ -1,0 +1,12 @@
+podSecurityContext:
+  enabled: true
+  fsGroup: 65534
+
+containerSecurityContext:
+  enabled: true
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1001
+  capabilities:
+    drop:
+      - ALL
