@@ -162,7 +162,7 @@ export function createSetupGithubEnvironment(customActionContext: CustomActionCo
                     owner: repoOwner,
                     repo: repo,
                     default_workflow_permissions: 'write',
-                    can_approve_pull_request_reviews: false
+                    can_approve_pull_request_reviews: true //Guarded by branch protection rules
                 });
                 ctx.logger.info(`GitHub Actions can now create pull requests`);
             } catch (error: any) {
