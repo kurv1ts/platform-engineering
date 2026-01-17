@@ -98,7 +98,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "sum(rate(${{ values.serviceFullName }}_http_requests_total{job=\"${{ values.serviceFullName }}\"}[5m])) by (method, route)",
+              "expr": "sum(rate(${{ values.serviceFullName | replace('-', '_') }}_http_requests_total{job=\"${{ values.serviceFullName }}\"}[5m])) by (method, route)",
               "refId": "A",
               "legendFormat": "{{method}} {{route}}"
             }
@@ -189,7 +189,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "(sum(rate(${{ values.serviceFullName }}_http_requests_total{job=\"${{ values.serviceFullName }}\",status=~\"5..\"}[5m])) or vector(0)) / (sum(rate(${{ values.serviceFullName }}_http_requests_total{job=\"${{ values.serviceFullName }}\"}[5m])) or vector(1))",
+              "expr": "(sum(rate(${{ values.serviceFullName | replace('-', '_') }}_http_requests_total{job=\"${{ values.serviceFullName }}\",status=~\"5..\"}[5m])) or vector(0)) / (sum(rate(${{ values.serviceFullName }}_http_requests_total{job=\"${{ values.serviceFullName }}\"}[5m])) or vector(1))",
               "refId": "A",
               "legendFormat": "Error Rate"
             }
@@ -284,7 +284,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "histogram_quantile(0.50, sum(rate(${{ values.serviceFullName }}_http_request_duration_ms_bucket{job=\"${{ values.serviceFullName }}\"}[5m])) by (le, route))",
+              "expr": "histogram_quantile(0.50, sum(rate(${{ values.serviceFullName | replace('-', '_') }}_http_request_duration_ms_bucket{job=\"${{ values.serviceFullName }}\"}[5m])) by (le, route))",
               "refId": "A",
               "legendFormat": "p50 - {{route}}"
             },
@@ -293,7 +293,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "histogram_quantile(0.95, sum(rate(${{ values.serviceFullName }}_http_request_duration_ms_bucket{job=\"${{ values.serviceFullName }}\"}[5m])) by (le, route))",
+              "expr": "histogram_quantile(0.95, sum(rate(${{ values.serviceFullName | replace('-', '_') }}_http_request_duration_ms_bucket{job=\"${{ values.serviceFullName }}\"}[5m])) by (le, route))",
               "refId": "B",
               "legendFormat": "p95 - {{route}}"
             },
@@ -302,7 +302,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "histogram_quantile(0.99, sum(rate(${{ values.serviceFullName }}_http_request_duration_ms_bucket{job=\"${{ values.serviceFullName }}\"}[5m])) by (le, route))",
+              "expr": "histogram_quantile(0.99, sum(rate(${{ values.serviceFullName | replace('-', '_') }}_http_request_duration_ms_bucket{job=\"${{ values.serviceFullName }}\"}[5m])) by (le, route))",
               "refId": "C",
               "legendFormat": "p99 - {{route}}"
             }
@@ -358,7 +358,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "sum(rate(${{ values.serviceFullName }}_http_requests_total{job=\"${{ values.serviceFullName }}\"}[5m]))",
+              "expr": "sum(rate(${{ values.serviceFullName | replace('-', '_') }}_http_requests_total{job=\"${{ values.serviceFullName }}\"}[5m]))",
               "refId": "A"
             }
           ],
