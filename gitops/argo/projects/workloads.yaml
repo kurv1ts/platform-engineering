@@ -43,3 +43,9 @@ spec:
 
     - group: autoscaling
       kind: HorizontalPodAutoscaler
+
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+    
+    - group: monitoring.coreos.com
+      kind: PodMonitor
