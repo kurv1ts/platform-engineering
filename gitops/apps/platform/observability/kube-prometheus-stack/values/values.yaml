@@ -15,7 +15,14 @@ prometheus:
   prometheusSpec:
     # Watch ServiceMonitors in all namespaces with monitoring=enabled label
     serviceMonitorSelector: {}
+    serviceMonitorSelectorNilUsesHelmValues: false  # Overrides Helm defaults
     serviceMonitorNamespaceSelector:
+      matchLabels:
+        monitoring: "enabled"
+
+    podMonitorSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    podMonitorNamespaceSelector:
       matchLabels:
         monitoring: "enabled"
     
@@ -128,4 +135,3 @@ kubeStateMetrics:
 #k8s node metrics
 nodeExporter:
   enabled: true
-

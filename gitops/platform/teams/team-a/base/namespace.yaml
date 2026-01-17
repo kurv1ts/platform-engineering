@@ -6,6 +6,7 @@ metadata:
     owner: team-a
     app.kubernetes.io/part-of: team-a
     app.kubernetes.io/managed-by: argocd
+    monitoring: enabled
     # Pod Security Admission (PSA)
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/enforce-version: latest

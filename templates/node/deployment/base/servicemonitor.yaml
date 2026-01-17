@@ -5,6 +5,8 @@ metadata:
   labels:
     app: ${{ values.serviceFullName }}
     team: ${{ values.team }}
+    app.kubernetes.io/name: ${{ values.serviceFullName }}
+    app.kubernetes.io/managed-by: argocd
 spec:
   selector:
     matchLabels:
@@ -14,4 +16,14 @@ spec:
       path: /metrics
       interval: 10s
       scrapeTimeout: 10s
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: namespace
+        - sourceLabels: [__meta_kubernetes_service_name]
+          targetLabel: service
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: team
+          replacement: ${{ values.team }}
 

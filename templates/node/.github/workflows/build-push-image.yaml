@@ -12,11 +12,12 @@ on:
 permissions:
   contents: write
   security-events: write
+  pull-requests: write
 
 jobs:
   build-and-push:
     # Skip runs triggered by this workflow's own commit
-    if: "${{ !contains(github.event.head_commit.message, 'chore(deploy): pin image tag') }}"
+    if: "${{ !contains(github.event.head_commit.message, 'pin image tag') }}"
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
@@ -104,24 +105,33 @@ jobs:
           YQEOF
           yq eval -i "$YQ_EXPR" "$KUSTOMIZATION"
 
-      - name: Commit and push changes (if any)
-        shell: bash
-        env:
-          TAG: ${{ steps.vars.outputs.tag }}
-          ENV: ${{ steps.env.outputs.env }}
-          KUSTOMIZATION: ${{ steps.env.outputs.kustomization }}
-        run: |
-          set -euo pipefail
-
-          if git diff --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add "$KUSTOMIZATION"
-          git commit -m "chore(deploy): pin image tag ${TAG} for ${ENV}"
-          git push
+      - name: Create Pull Request for image update
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "pin image tag ${{ steps.vars.outputs.tag }} for ${{ steps.env.outputs.env }}"
+          branch: deploy/${{ steps.env.outputs.env }}/${{ steps.vars.outputs.tag }}
+          delete-branch: true
+          title: "🚀 Deploy ${{ steps.vars.outputs.tag }} to ${{ steps.env.outputs.env }}"
+          add-paths: |
+            ${{ steps.env.outputs.kustomization }}
+          body: |
+            ## Automated Deployment Update
+            
+            **Environment:** `${{ steps.env.outputs.env }}`
+            **Image Tag:** `${{ steps.vars.outputs.tag }}`
+            **Image:** `${{ vars.DOCKER_USERNAME }}/${{ steps.vars.outputs.image_name }}:${{ steps.vars.outputs.tag }}`
+            
+            ---
+            
+            This PR was automatically created by the build pipeline.
+            
+            ### Verification
+            - [ ] Image has been pushed to registry
+            - [ ] Trivy security scan passed
+            
+            Merge this PR to deploy the new image via ArgoCD.
+          labels: |
+            deployment
+            automated
+            ${{ steps.env.outputs.env }}
 {% endraw %}

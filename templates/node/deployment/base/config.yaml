@@ -7,6 +7,6 @@ data:
   NODE_ENV: "dev"
   ENVIRONMENT: "dev"
   SERVICE_NAMESPACE: "${{ values.team }}-dev"
-  METRICS_PREFIX: "${{ values.serviceFullName }}_"
+  METRICS_PREFIX: "${{ values.serviceFullName | replace('-', '_') }}_"
   SERVICE_NAME: "${{ values.serviceFullName }}"
   # OTEL_EXPORTER_OTLP_ENDPOINT: "http://tempo.observability-dev.svc:4318"  # Uncomment when Tempo is deployed
