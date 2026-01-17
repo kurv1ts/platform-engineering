@@ -9,7 +9,7 @@ import sodium from 'libsodium-wrappers';
  *
  * @public
  */
-export function createSetupGithubSecretsAction(customActionContext: CustomActionContext) {
+export function createSetupGithubEnvironment(customActionContext: CustomActionContext) {
     return createTemplateAction({
         id: 'template:setup-github-secrets',
         description: 'Sets up required GitHub repository secrets for CI/CD workflows',
@@ -153,6 +153,21 @@ export function createSetupGithubSecretsAction(customActionContext: CustomAction
 
                     ctx.logger.info(`Secret ${name} created for ${env}`);
                 }
+            }
+
+            // Enable GitHub Actions to create pull requests
+            try {
+                ctx.logger.info('Enabling GitHub Actions to create pull requests...');
+                await octokit.request('PUT /repos/{owner}/{repo}/actions/permissions/workflow', {
+                    owner: repoOwner,
+                    repo: repo,
+                    default_workflow_permissions: 'write',
+                    can_approve_pull_request_reviews: false
+                });
+                ctx.logger.info(`GitHub Actions can now create pull requests`);
+            } catch (error: any) {
+                ctx.logger.warn(`Could not set Actions workflow permissions: ${error.message}`);
+                ctx.logger.warn(`You may need to enable this manually in Settings > Actions > General`);
             }
 
             ctx.logger.info(`All credentials set up successfully for ${repoOwner}/${repo}`);
