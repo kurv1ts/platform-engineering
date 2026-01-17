@@ -14,7 +14,7 @@ Sealed Secrets is a Kubernetes operator that allows you to encrypt secrets and s
 
 Create a standard secrets.yaml file in the base directory of the app and run the following command to encrypt it:
 ```
-kubeseal --controller-name=sealed-secrets --controller-namespace=sealed-secrets < secrets.yaml > sealed-secrets.yaml
+kubeseal --controller-name=sealed-secrets --controller-namespace=sealed-secrets < secrets.yaml > sealed-secrets.yaml -o yaml
 ```
 
 ### Step 2
