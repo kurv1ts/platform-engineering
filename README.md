@@ -28,17 +28,15 @@ For the detailed design and local access patterns (hosts/port-forwarding), see [
 ```
 platform-engineering/
 ├── apps/                    # Platform-managed applications
-│   ├── backstage/          # IDP portal with custom plugins
-│   ├── rental/             # Demo service with chaos engineering
-│   ├── vehicles/           # Demo service
-│   └── platform/           # Orchestrator service
+│   └── backstage/          # IDP portal with custom plugins
 ├── docs/                   # Architecture decisions & setup guides
 ├── gitops/                 # ArgoCD applications and configurations
 │   ├── argo/              # Root app, projects, ApplicationSets
-│   ├── apps/              # Kustomize bases and overlays
-│   └── clusters/          # Cluster-specific configurations
+│   ├── apps/              # Platform controlled apps
+│   ├── clusters/          # Cluster-specific configurations
+    └── platform/          # Platform controlled resources without runtime,e.g admission policies, namespaces
 ├── infra/                  # Terraform infrastructure code
-│   ├── modules/           # Reusable modules (k8s, team namespaces)
+│   ├── modules/           # Reusable modules (k8s)
 │   └── envs/              # Environment configurations
 └── templates/              # Service templates for scaffolding
     └── node/              # Node.js service template
@@ -58,7 +56,7 @@ platform-engineering/
 ## What I Built
 
 ### Custom Backstage Scaffolder Action
-Extended Backstage with a custom scaffolder action that automatically adds environment variables & secrets per Github repository environment for the CI pipeline which builds and pushes the application image.
+Extended Backstage with a custom scaffolder action that prepares environment (env vars/secrets etc.) for the scaffolded service repository.
 
 #### Authentication for Backstage
 Backstage UI sign-in uses GitHub OAuth (OAuth2) so users and groups map cleanly to GitHub identities, which then drives ownership in the catalog and template permissions.
@@ -85,8 +83,6 @@ Hardcoded repository url is in the responsible applicationSet because for auto-d
 
 #### Ideally
 ApplicationSet with SCM Provider generator automatically discovers repositories tagged with `idp-managed` and deploys them without manual ArgoCD configuration. The tradeoff: this couples deploy decisions to GitHub topics, which wouldn't scale to a multi-org setup. Good enough for now.
-
-
 
 **Key file:** [`gitops/argo/applicationSets/workloads/discovered-apps.yaml`](gitops/argo/applicationSets/workloads/discovered-apps.yaml)
 
@@ -140,11 +136,11 @@ docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n
 
 | Component |
 |-----------|
-| Auto-Discovery | 🔧 WIP | Need to create a Github org for topic based repo discovery  |
-| RBAC | 
 | NetworkPolicies |
 | ResourceQuota |
 | Ingress -> Gateway API |
+| Logs & Traces |
+
 
 ## Documentation
 
@@ -157,7 +153,6 @@ This project intentionally avoids over-engineering. It runs on a single Kind clu
 Things I deliberately left out (for now):
 - Multi-cluster federation (adds complexity before it's needed)
 - Vault for secrets (Sealed Secrets is good enough for learning GitOps patterns)
-- Loki and Tempo (Prometheus + Grafana covers metrics; logs/traces are phase 2)
 
 What I learned building this:
 - **GitOps is great until it isn't** — debugging sync failures requires understanding both Git state and cluster state
