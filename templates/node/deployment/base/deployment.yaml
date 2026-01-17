@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: ${{ values.serviceFullName }}
+        argocd.argoproj.io/instance: ${{ values.serviceFullName }}
+
     spec:
       serviceAccountName: ${{ values.serviceFullName }}-service-account
       automountServiceAccountToken: false
