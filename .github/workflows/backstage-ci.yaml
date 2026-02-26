@@ -1,30 +1,45 @@
 name: Backstage CI
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/backstage/**"
   workflow_dispatch:
     inputs:
       environment:
-        description: Environment to deploy to
+        description: Environment to promote to
         type: choice
         options: [dev, prod]
+      image_tag:
+        description: "Image tag to promote (SHA hash of the commit). Must already exist in the registry."
+        type: string
+        required: true
 
 env:
   IMAGE_NAME: backstage
 
 jobs:
   build-and-push:
-    environment: ${{ inputs.environment }}
+    # Only runs on automatic push to main, never on manual promotion dispatches
+    if: github.event_name == 'push'
+    environment: dev
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
     outputs:
-      image_tag: ${{ steps.meta.outputs.version }}
+      image_tag: ${{ steps.vars.outputs.tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Compute image tag
+        id: vars
+        run: |
+          echo "tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -32,13 +47,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=long
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -46,49 +56,62 @@ jobs:
           context: apps/backstage
           file: apps/backstage/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-
-      # Backstage has lots of outdated vulnerable dependencies, so skipping Trivy for now
-      # - name: Run Trivy vulnerability scanner
-      #   uses: aquasecurity/trivy-action@0.33.1
-      #   with:
-      #     image-ref: ${{ steps.meta.outputs.tags }}
-      #     format: 'sarif'
-      #     output: 'trivy-results.sarif'
-      #     severity: 'CRITICAL,HIGH'
-      #     exit-code: '1'
-
-      # - name: Upload Trivy results to GitHub Security tab
-      #   uses: github/codeql-action/upload-sarif@v3
-      #   if: always()
-      #   with:
-      #     sarif_file: 'trivy-results.sarif'
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   update-gitops:
-    environment: ${{ inputs.environment }}
-    needs: build-and-push
+    # Runs after build-and-push (push path) or standalone (dispatch path)
+    needs: [build-and-push]
+    if: always() && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
+    environment: ${{ inputs.environment || 'dev' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Update Kubernetes resources
+      - name: Resolve environment and image tag
+        id: env
         run: |
-          cd gitops/apps/platform/backstage/overlays/${{ inputs.environment }}
+          ENV="${{ inputs.environment || 'dev' }}"
+          # On push: use the tag from the build job. On dispatch: use the provided input.
+          TAG="${{ needs.build-and-push.outputs.image_tag || inputs.image_tag }}"
+          echo "env=$ENV" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "kustomization=gitops/apps/platform/backstage/overlays/$ENV/kustomization.yaml" >> "$GITHUB_OUTPUT"
+
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.3
+
+      - name: Update overlay image tag
+        run: |
+          set -euo pipefail
+          KUSTOMIZATION="${{ steps.env.outputs.kustomization }}"
           FULL_IMAGE="${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
-          NEW_TAG="${{ needs.build-and-push.outputs.image_tag }}"
+          NEW_TAG="${{ steps.env.outputs.tag }}"
+          yq eval "(.images[] | select(.name == \"${{ env.IMAGE_NAME }}\")).newName = \"$FULL_IMAGE\"" -i "$KUSTOMIZATION"
+          yq eval "(.images[] | select(.name == \"${{ env.IMAGE_NAME }}\")).newTag = \"$NEW_TAG\"" -i "$KUSTOMIZATION"
 
-          yq eval "(.images[] | select(.name == \"${{ env.IMAGE_NAME }}\")).newName = \"$FULL_IMAGE\"" -i kustomization.yaml
-          yq eval "(.images[] | select(.name == \"${{ env.IMAGE_NAME }}\")).newTag = \"$NEW_TAG\"" -i kustomization.yaml
-
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Create pull request for image promotion
+        uses: peter-evans/create-pull-request@v6
         with:
-          commit_message: "Update Backstage image tag to ${{ needs.build-and-push.outputs.image_tag }}"
-          file_pattern: "gitops/apps/platform/backstage/**"
+          commit-message: "pin image tag ${{ steps.env.outputs.tag }} for ${{ steps.env.outputs.env }}"
+          branch: deploy/${{ steps.env.outputs.env }}/${{ steps.env.outputs.tag }}
+          delete-branch: true
+          title: "Deploy ${{ steps.env.outputs.tag }} to ${{ steps.env.outputs.env }}"
+          add-paths: ${{ steps.env.outputs.kustomization }}
+          body: |
+            ## Automated Deployment Update
+
+            Environment: `${{ steps.env.outputs.env }}`
+            Image Tag: `${{ steps.env.outputs.tag }}`
+            Image: `${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.env.outputs.tag }}`
+
+            Merge this PR to deploy the new image via ArgoCD to the ${{ steps.env.outputs.env }} environment.
+          labels: |
+            deployment
+            automated
+            ${{ steps.env.outputs.env }}

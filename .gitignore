@@ -10,6 +10,9 @@ volume
 
 .ssh
 .vscode
+.claude/
+.cursor/
+.cursorrules
 
 notes.md
 

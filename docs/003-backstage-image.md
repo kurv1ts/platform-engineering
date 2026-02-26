@@ -1,19 +1,23 @@
 ## Backstage application image
 
-The k8s cluster is built with kind (Kubernetes in Docker) and as the automated image building and pushing is not yet implemented, the image needs to be built and pushed manually to kind docker registry.
+Image builds and promotion are automated via the [Backstage CI](.github/workflows/backstage-ci.yaml) GitHub Actions workflow.
+
+Prerequisites:
+- DOCKER_USERNAME
+- DOCKER_TOKEN
+
+as environment secrets in Github.
 
 
-### Step1: Build the image
+### Automated flow for **dev** deployment
 
-```
-cd apps/backstage && docker build -t backstage:0.1.1 .
-```
+Any merge to `main` that touches files under `apps/backstage/**` triggers the pipeline automatically:
 
+1. **Build** - Docker image is built using Buildx with GitHub Actions layer caching
+2. **Push** - Image is pushed to Docker Hub tagged as `<full-git-sha>`
+3. **Promote** - A pull request is opened updating `gitops/apps/platform/backstage/overlays/dev/kustomization.yaml` with the new tag
+4. **Deploy** - Merging the PR allows ArgoCD to detect the change and roll out the new image to the dev namespace.
 
-### Step2: Push the image to kind docker registry
+### Manual promotion to **prod**
 
-```
-docker save backstage:0.1.1 | docker exec -i company-x-cluster-dev-worker ctr -n k8s.io images import -
-```
-
-The image is saved to "company-x-cluster-dev-worker" worker node because it has a label "platform" and backstage deployment uses nodeSelector:platform.
+Run the `Backstage CI` workflow manually (`workflow_dispatch`), select `prod` as the environment and specify `commit SHA` that already exists in the image registry.

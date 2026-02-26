@@ -72,7 +72,7 @@ Instead of a PAT-style `GITHUB_TOKEN`, a GitHub App is a better production choic
 **Key file:** [`apps/backstage/plugins/scaffolder-backend-module-custom-actions/`](apps/backstage/plugins/scaffolder-backend-module-custom-actions/)
 
 ### GitOps with App-of-Apps Pattern
-Implemented a hierarchical ArgoCD structure with separate projects for `bootstrap`, `platform`, and `workloads`. This was chosen over a single-project setup to make trust boundaries explicit, even at small scale — it's easier to relax constraints later than to introduce them.
+Implemented a hierarchical ArgoCD structure with separate projects for `bootstrap`, `platform`, and `workloads`. This was chosen over a single-project setup to make trust boundaries explicit, even at small scale - it's easier to relax constraints later than to introduce them.
 
 **Key file:** [`gitops/argo/root-application.yaml`](gitops/argo/root-application.yaml)
 
@@ -92,7 +92,7 @@ Node.js service template with OpenTelemetry auto-instrumentation, Prometheus met
 **Key file:** [`templates/node/`](templates/node/)
 
 ### Chaos Engineering Capabilities
-Demo services include configurable error rates and latency injection for testing resilience and observability pipelines. These aren't production patterns — they exist to generate interesting telemetry data for testing the observability stack.
+Demo services include configurable error rates and latency injection for testing resilience and observability pipelines. These aren't production patterns - they exist to generate interesting telemetry data for testing the observability stack.
 
 **Key file:** [`apps/rental/src/index.ts`](apps/rental/src/index.ts)
 
@@ -115,49 +115,18 @@ export KUBECONFIG=~/.kube/company-x-cluster-dev-kubeconfig
 See [docs/002-argocd-bootstrap.md](docs/002-argocd-bootstrap.md) for detailed steps.
 
 ### 3. Deploy Backstage
-Prerequisite: Github environment "dev" with `DOCKER_USERNAME` and `DOCKER_TOKEN` variables set.
-Backstage has a CI workflow that builds, pushes to Docker Hub, and updates the GitOps manifests automatically:
+Prerequisite: Github environment's' with `DOCKER_USERNAME` and `DOCKER_TOKEN` variables set.
+Backstage has a CI workflow that builds, pushes to Docker Hub and opens a PR to update the GitOps manifests automatically:
 
 ```bash
 # Trigger via GitHub Actions UI or CLI
 gh workflow run backstage-ci.yaml -f environment=dev
 ```
 
-ArgoCD detects the updated image tag in `gitops/apps/platform/backstage/overlays/dev/kustomization.yaml` and syncs the deployment.
+ArgoCD detects the updated image tag in `gitops/apps/platform/backstage/overlays/$ENV/kustomization.yaml` and syncs the deployment.
 
-**For local Kind clusters** (no registry access), load the image manually:
-```bash
-cd apps/backstage
-docker build . -t backstage:0.0.1
-docker save backstage:0.0.1 | docker exec -i company-x-cluster-dev-worker ctr -n k8s.io images import -
-```
-
-## TODO
-
-| Component |
-|-----------|
-| NetworkPolicies |
-| ResourceQuota |
-| Ingress -> Gateway API |
-| Logs & Traces |
 
 
 ## Documentation
 
 [More detailed documentation](docs) 
-
-## Notes
-
-This project intentionally avoids over-engineering. It runs on a single Kind cluster, uses opinionated defaults, and optimizes for clarity over flexibility. The goal is to understand platform tradeoffs firsthand, not to simulate enterprise scale.
-
-Things I deliberately left out (for now):
-- Multi-cluster federation (adds complexity before it's needed)
-- Vault for secrets (Sealed Secrets is good enough for learning GitOps patterns)
-
-What I learned building this:
-- **GitOps is great until it isn't** — debugging sync failures requires understanding both Git state and cluster state
-("ArgoCD shows OutOfSync because the Git repo is correct, but the cluster is missing a CRD (SealedSecrets). You have to check both the Git manifests and what’s actually installed in the cluster.")
-- **Templates are opinions** — every default you bake in is a decision someone will want to override
-(The Node template sets default CPU/memory limits and a specific logging format. A team running a batch job or high‑throughput API will want to override those defaults.)
-
-*This is a learning project. It works, but it's not production-hardened. Feedback is welcomed.*
