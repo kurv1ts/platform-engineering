@@ -7,10 +7,10 @@ terraform {
 }
 
 
-resource "kind_cluster" "company_x_cluster" {
-  name            = "${var.company_name}-cluster-${var.env}"
+resource "kind_cluster" "this" {
+  name            = "${var.company_name}-cluster"
   node_image      = "kindest/node:v1.34.0"
-  kubeconfig_path = pathexpand("~/.kube/${var.company_name}-cluster-${var.env}-kubeconfig")
+  kubeconfig_path = pathexpand("~/.kube/${var.company_name}-cluster-kubeconfig")
   wait_for_ready  = true
 
   kind_config {
