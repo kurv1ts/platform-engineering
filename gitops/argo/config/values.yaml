@@ -1,0 +1,111 @@
+argocd-apps:
+  applications:
+    root-app-dev:
+      namespace: argocd
+      project: root
+      source:
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: gitops/clusters/dev
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+
+      syncPolicy:
+        # ArgoCD to pull the changes from the GitOps repository and apply them to the cluster. Polls every 3 minutes.
+        automated:
+          prune: true
+          selfHeal: true
+    root-app-prod:
+      namespace: argocd
+      project: root
+      source:
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: gitops/clusters/prod
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+      syncPolicy:
+        syncOptions:
+          - PruneLast=true # Any resource deletions happen only after all new resources are healthy
+  projects:
+    root:
+      namespace: argocd
+      description: Root Application (App-of-Apps)
+      sourceRepos:
+        - https://github.com/kurv1ts/platform-engineering.git
+      destinations:
+        - server: https://kubernetes.default.svc
+          namespace: argocd
+
+    platform:
+      namespace: argocd
+      description: Platform-level components (ingress, infra services)
+      sourceRepos:
+        - https://github.com/kurv1ts/platform-engineering.git
+        - https://helm.traefik.io/traefik
+        - https://prometheus-community.github.io/helm-charts
+        - https://github.com/prometheus-operator/prometheus-operator.git
+        - https://bitnami-labs.github.io/sealed-secrets
+      destinations:
+        - server: https://kubernetes.default.svc
+          namespace: "*"
+      clusterResourceWhitelist:
+        - group: ""
+          kind: Namespace
+        - group: apiextensions.k8s.io
+          kind: CustomResourceDefinition
+        - group: rbac.authorization.k8s.io
+          kind: ClusterRole
+        - group: rbac.authorization.k8s.io
+          kind: ClusterRoleBinding
+        - group: gateway.networking.k8s.io
+          kind: GatewayClass
+        - group: networking.k8s.io
+          kind: IngressClass
+        - group: admissionregistration.k8s.io
+          kind: ValidatingWebhookConfiguration
+        - group: admissionregistration.k8s.io
+          kind: MutatingWebhookConfiguration
+      namespaceResourceWhitelist:
+        - group: "*"
+          kind: "*"
+
+    workloads:
+      namespace: argocd
+      description: Workload applications
+      sourceRepos:
+        - https://github.com/kurv1ts/platform-engineering
+        - https://github.com/kurv1ts/platform-scaffolded-api.git
+      destinations:
+        - server: https://kubernetes.default.svc
+          namespace: "*"
+      clusterResourceWhitelist:
+        - group: ""
+          kind: Namespace
+      namespaceResourceWhitelist:
+        - group: ""
+          kind: Service
+        - group: ""
+          kind: ServiceAccount
+        - group: ""
+          kind: ConfigMap
+        - group: ""
+          kind: Secret
+        - group: apps
+          kind: Deployment
+        - group: apps
+          kind: StatefulSet
+        - group: batch
+          kind: Job
+        - group: batch
+          kind: CronJob
+        - group: networking.k8s.io
+          kind: Ingress
+        - group: autoscaling
+          kind: HorizontalPodAutoscaler
+        - group: monitoring.coreos.com
+          kind: ServiceMonitor
+        - group: monitoring.coreos.com
+          kind: PodMonitor

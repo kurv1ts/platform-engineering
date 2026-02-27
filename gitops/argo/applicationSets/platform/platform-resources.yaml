@@ -11,7 +11,7 @@ spec:
   goTemplate: true
   generators:
     - git:
-        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
         revision: main
         directories:
           - path: gitops/platform/overlays/*
@@ -21,7 +21,7 @@ spec:
     spec:
       project: platform
       source:
-        repoURL: git@github.com:kurv1ts/platform-engineering.git
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
         targetRevision: main
         path: "{{.path.path}}"
       destination:

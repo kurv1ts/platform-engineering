@@ -8,6 +8,8 @@ volume
 .env*
 !.env.example
 
+charts/
+
 .ssh
 .vscode
 .claude/
