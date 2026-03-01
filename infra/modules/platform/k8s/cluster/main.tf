@@ -19,7 +19,14 @@ resource "kind_cluster" "this" {
 
     node {
       role = "control-plane"
+    }
 
+    node {
+      role = "worker"
+      labels = {
+        role = "platform"
+      }
+      
       extra_port_mappings {
         container_port = 80
         host_port      = 8880
@@ -28,13 +35,6 @@ resource "kind_cluster" "this" {
       extra_port_mappings {
         container_port = 443
         host_port      = 8843
-      }
-    }
-
-    node {
-      role = "worker"
-      labels = {
-        role = "platform"
       }
     }
 
