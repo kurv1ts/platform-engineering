@@ -34,7 +34,7 @@ spec:
             skipCrds: true # CRDs are managed by separate applicationSet
             valueFiles:
               - $values/gitops/apps/platform/observability/kube-prometheus-stack/values/values.yaml
-        - repoURL: git@github.com:kurv1ts/platform-engineering.git
+        - repoURL: https://github.com/kurv1ts/platform-engineering.git
           targetRevision: main
           ref: values
 
