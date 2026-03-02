@@ -1,9 +1,9 @@
 output "cluster_name" {
-    value = kind_cluster.this.name
+  value = kind_cluster.this.name
 }
 
 output "kubeconfig" {
-    value = kind_cluster.this.kubeconfig
+  value = kind_cluster.this.kubeconfig
 }
 
 output "endpoint" {

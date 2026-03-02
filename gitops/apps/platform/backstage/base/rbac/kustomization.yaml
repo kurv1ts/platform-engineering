@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - backstage-clusterrole.yaml
   - backstage-clusterrolebinding.yaml
-

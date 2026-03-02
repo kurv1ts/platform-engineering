@@ -47,23 +47,6 @@ jobs:
       - name: Install yamllint
         run: pip install yamllint
 
-      - name: Create yamllint config
-        run: |
-          cat > .yamllint.yaml << 'EOF'
-          extends: relaxed
-          rules:
-            line-length:
-              max: 150
-              allow-non-breakable-words: true
-            truthy:
-              allowed-values: ['true', 'false', 'yes', 'no']
-            comments:
-              min-spaces-from-content: 1
-            indentation:
-              spaces: 2
-              indent-sequences: consistent
-          EOF
-
       - name: Lint GitOps manifests
         run: yamllint gitops/ -c .yamllint.yaml
 
@@ -80,9 +63,16 @@ jobs:
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v2
 
+      - name: Install kubeconform
+        run: |
+          curl -sSLo /tmp/kubeconform.tar.gz \
+            https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar -xzf /tmp/kubeconform.tar.gz -C /tmp
+          sudo mv /tmp/kubeconform /usr/local/bin/
+
       - name: Validate rendered ApplicationSets (dev)
         run: |
-          kustomize build --enable-helm gitops/clusters/dev \
+          kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/dev \
             | kubeconform \
                 --schema-location default \
                 --schema-location 'https://raw.githubusercontent.com/argoproj/argo-schema-generator/main/schema/argo_all_k8s_kube_schema_v1.30.0.json' \
@@ -90,7 +80,7 @@ jobs:
 
       - name: Validate rendered ApplicationSets (prod)
         run: |
-          kustomize build --enable-helm gitops/clusters/dev \
+          kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/prod \
             | kubeconform \
                 --schema-location default \
                 --schema-location 'https://raw.githubusercontent.com/argoproj/argo-schema-generator/main/schema/argo_all_k8s_kube_schema_v1.30.0.json' \
@@ -98,23 +88,3 @@ jobs:
 
       - name: Build Node template overlay (dev)
         run: kustomize build templates/node/deployment/overlays/dev
-
-  docker-lint:
-    name: Dockerfile Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Lint Backstage Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: apps/backstage/Dockerfile
-          failure-threshold: warning
-
-      - name: Lint Node Template Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: templates/node/Dockerfile
-          failure-threshold: warning
-

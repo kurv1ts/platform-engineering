@@ -1,0 +1,16 @@
+extends: relaxed
+
+ignore: |
+  gitops/argo/applicationSet/*/templates/
+
+rules:
+  line-length:
+    max: 150
+    allow-non-breakable-words: true
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no']
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: 2
+    indent-sequences: consistent

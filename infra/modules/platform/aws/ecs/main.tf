@@ -34,7 +34,7 @@ resource "aws_ecs_service" "ecs_service" {
   launch_type = "FARGATE"
 
   network_configuration {
-    subnets = var.ecs_subnet_ids
+    subnets         = var.ecs_subnet_ids
     security_groups = var.ecs_security_group_ids
   }
 
@@ -48,7 +48,7 @@ resource "aws_ecs_service" "ecs_service" {
     }
   }
 
-/*
+  /*
   load_balancer {
     target_group_arn = aws_lb_target_group.foo.arn
     container_name   = "mongo"
@@ -62,10 +62,10 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   family = "${var.service_name}-task-definition"
   container_definitions = templatefile("${path.module}/task_definition.json", {
     service_name = var.service_name
-    image = var.image
-    cpu = var.cpu
-    memory = var.memory
-    region = var.region
+    image        = var.image
+    cpu          = var.cpu
+    memory       = var.memory
+    region       = var.region
   })
   tags = var.tags
 }

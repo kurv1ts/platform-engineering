@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       annotations:
-        argocd.argoproj.io/sync-wave: "-1" #Deploy first (before the backstage application)
+        argocd.argoproj.io/sync-wave: "-1" # Deploy first (before the backstage application)
       labels:
         app: backstage-postgres
     spec:
@@ -51,5 +51,4 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 2G
-
+              storage: 2G

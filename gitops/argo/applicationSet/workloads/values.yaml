@@ -6,7 +6,7 @@ applications:
     appName: "{{ .serviceFullName }}-{{ .path.basename }}"
     project: workloads
     generators:
-      # Adding source repos one by one doesnt scale. 
+      # Adding source repos one by one doesnt scale.
       # SCM Provider generator should be used instead.
       - matrix:
           generators:

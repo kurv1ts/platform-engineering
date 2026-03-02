@@ -26,7 +26,7 @@ resource "kind_cluster" "this" {
       labels = {
         role = "platform"
       }
-      
+
       extra_port_mappings {
         container_port = 80
         host_port      = 8880

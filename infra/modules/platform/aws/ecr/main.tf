@@ -5,7 +5,7 @@ terraform {
 }
 
 resource "aws_ecr_repository" "ecr_repository" {
-  name = "${var.service_name}-ecr"
+  name                 = "${var.service_name}-ecr"
   image_tag_mutability = "IMMUTABLE"
 
   image_scanning_configuration {

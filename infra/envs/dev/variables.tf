@@ -1,15 +1,15 @@
 variable "env" {
-  type = string
+  type    = string
   default = "dev"
 }
 
 variable "service_name" {
-  type = string
+  type    = string
   default = "service-x"
 }
 
 variable "company_name" {
-  type = string
+  type    = string
   default = "company-x"
 }
 
@@ -23,7 +23,7 @@ variable "tags" {
 variable "public_subnets" {
   type = map(object({ cidr_block = string, availability_zone = string }))
   default = {
-  a = { cidr_block = "10.0.1.0/24", availability_zone = "eu-west-1a" }
+    a = { cidr_block = "10.0.1.0/24", availability_zone = "eu-west-1a" }
     b = { cidr_block = "10.0.2.0/24", availability_zone = "eu-west-1b" }
   }
 }

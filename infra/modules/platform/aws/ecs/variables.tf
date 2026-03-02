@@ -1,31 +1,31 @@
 variable "service_name" {
-    type = string
+  type = string
 }
 
 variable "tags" {
-    type = map(string)
+  type = map(string)
 }
 
 variable "ecs_subnet_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "ecs_security_group_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "image" {
-    type = string
+  type = string
 }
 
 variable "cpu" {
-    type = number
+  type = number
 }
 
 variable "memory" {
-    type = number
+  type = number
 }
 
 variable "region" {
-    type = string
+  type = string
 }

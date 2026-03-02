@@ -12,7 +12,7 @@ resource "aws_lb" "company_public_alb" {
   }
 
   tags = {
-    Name = "company-public-alb"
+    Name        = "company-public-alb"
     Environment = "dev"
   }
 }

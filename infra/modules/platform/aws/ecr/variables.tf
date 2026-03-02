@@ -1,7 +1,7 @@
 variable "service_name" {
-    type = string
+  type = string
 }
 
 variable "tags" {
-    type = map(string)
+  type = map(string)
 }
