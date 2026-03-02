@@ -1,0 +1,46 @@
+{{- range $name, $app := .Values.applications }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ $name }}
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators: {{ $app.generators | toYaml | nindent 4 }}
+  template:
+    metadata:
+      name: {{ $app.appName | quote }}
+      annotations:
+      {{- if $app.syncWave }}
+        argocd.argoproj.io/sync-wave: {{ $app.syncWave | quote }}
+      {{- end }}
+    spec:
+      project: {{ $app.project }}
+      {{- if $app.sources }}
+      sources: {{ $app.sources | toYaml | nindent 6 }}
+      {{- else }}
+      source: {{ $app.source | toYaml | nindent 6 }}
+      {{- end }}
+      destination: {{ $app.destination | toYaml | nindent 6 }}
+      syncPolicy:
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+        {{- if $.Values.syncPolicy.automated }}
+        automated:
+          prune: {{ if and $app.syncPolicy $app.syncPolicy.automated (hasKey $app.syncPolicy.automated "prune") }}{{ $app.syncPolicy.automated.prune }}{{ else }}true{{ end }}
+          selfHeal: true
+        {{- end }}
+        {{- if $app.managedNamespaceMetadata }}
+        managedNamespaceMetadata:
+          labels: {{ $app.managedNamespaceMetadata.labels | toYaml | nindent 12 }}
+        {{- end }}
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+{{- end }}

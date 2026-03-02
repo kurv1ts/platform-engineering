@@ -1,0 +1,33 @@
+syncPolicy:
+  automated: false
+
+applications:
+  backstage:
+    appName: backstage-prod
+  platform-kube-prometheus-stack:
+    appName: kube-prometheus-stack-prod
+  platform-traefik:
+    appName: traefik-prod
+    generators:
+      - list:
+          elements:
+            - env: prod
+              name: traefik
+              namespace: traefik-prod
+              chart: traefik
+              repo: https://helm.traefik.io/traefik
+              version: "37.4.0"
+  platform-resources:
+    generators:
+      - git:
+          repoURL: https://github.com/kurv1ts/platform-engineering.git
+          revision: main
+          directories:
+            - path: gitops/platform/*/overlays/prod
+  team-resources:
+    generators:
+      - git:
+          repoURL: https://github.com/kurv1ts/platform-engineering.git
+          revision: main
+          directories:
+            - path: gitops/platform/teams/*/overlays/prod

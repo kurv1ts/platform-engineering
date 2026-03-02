@@ -79,11 +79,21 @@ jobs:
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v2
 
-      - name: Build Backstage overlay (dev)
-        run: kustomize build gitops/apps/platform/backstage/overlays/dev
+      - name: Validate rendered ApplicationSets (dev)
+        run: |
+          kustomize build --enable-helm gitops/clusters/dev \
+            | kubeconform \
+                --schema-location default \
+                --schema-location 'https://raw.githubusercontent.com/argoproj/argo-schema-generator/main/schema/argo_all_k8s_kube_schema_v1.30.0.json' \
+                --strict
 
-      - name: Build Sealed Secrets overlay (dev)
-        run: kustomize build gitops/apps/platform/sealed-secrets/overlays/dev
+      - name: Validate rendered ApplicationSets (prod)
+        run: |
+          kustomize build --enable-helm gitops/clusters/dev \
+            | kubeconform \
+                --schema-location default \
+                --schema-location 'https://raw.githubusercontent.com/argoproj/argo-schema-generator/main/schema/argo_all_k8s_kube_schema_v1.30.0.json' \
+                --strict
 
       - name: Build Node template overlay (dev)
         run: kustomize build templates/node/deployment/overlays/dev

@@ -27,6 +27,7 @@ argocd-apps:
         server: https://kubernetes.default.svc
         namespace: argocd
       syncPolicy:
+        # Automated sync policy is disabled intentionally
         syncOptions:
           - PruneLast=true # Any resource deletions happen only after all new resources are healthy
   projects:
@@ -41,7 +42,7 @@ argocd-apps:
 
     platform:
       namespace: argocd
-      description: Platform-level components (ingress, infra services)
+      description: Platform-level components
       sourceRepos:
         - https://github.com/kurv1ts/platform-engineering.git
         - https://helm.traefik.io/traefik
@@ -76,8 +77,7 @@ argocd-apps:
       namespace: argocd
       description: Workload applications
       sourceRepos:
-        - https://github.com/kurv1ts/platform-engineering
-        - https://github.com/kurv1ts/platform-scaffolded-api.git
+        - https://github.com/kurv1ts/*
       destinations:
         - server: https://kubernetes.default.svc
           namespace: "*"

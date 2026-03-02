@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 
-namespace: team-a-dev
+namespace: platform-dev
 
 commonLabels:
   env: dev

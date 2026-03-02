@@ -1,0 +1,40 @@
+syncPolicy:
+  automated: true
+
+applications:
+  discovered-apps:
+    appName: "{{ .serviceFullName }}-{{ .path.basename }}"
+    project: workloads
+    generators:
+      # Adding source repos one by one doesnt scale. 
+      # SCM Provider generator should be used instead.
+      - matrix:
+          generators:
+            - git:
+                repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
+                revision: main
+                directories:
+                  - path: deployment/overlays/*
+            - git:
+                repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
+                revision: main
+                files:
+                  - path: .argocd/metadata.yaml
+    source:
+      repoURL: https://github.com/kurv1ts/platform-scaffolded-api.git
+      targetRevision: main
+      path: "{{ .path.path }}"
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: "{{ .team }}-{{ .path.basename }}"
+    managedNamespaceMetadata:
+      labels:
+        owner: "{{ .team }}"
+        app.kubernetes.io/part-of: "{{ .team }}"
+        app.kubernetes.io/managed-by: argocd
+        pod-security.kubernetes.io/enforce: baseline
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/audit: baseline
+        pod-security.kubernetes.io/audit-version: latest
+        pod-security.kubernetes.io/warn: baseline
+        pod-security.kubernetes.io/warn-version: latest

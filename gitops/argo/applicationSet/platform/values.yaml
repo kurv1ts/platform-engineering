@@ -1,0 +1,182 @@
+syncPolicy:
+  automated: true
+
+applications:
+  backstage:
+    appName: backstage
+    syncWave: "2"
+    project: platform
+    generators:
+      - git:
+          repoURL: https://github.com/kurv1ts/platform-engineering.git
+          revision: main
+          directories:
+            - path: gitops/apps/platform/backstage/overlays/*
+    sources:
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: "{{.path.path}}"
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: "backstage-{{.path.basename}}"
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
+  platform-kube-prometheus-stack:
+    appName: kube-prometheus-stack
+    syncWave: "2"
+    project: platform
+    generators:
+      - list:
+          elements:
+            - cluster: default
+              name: kube-prometheus-stack
+              namespace: observability
+              chart: kube-prometheus-stack
+              repo: https://prometheus-community.github.io/helm-charts
+              version: "80.13.3"
+    sources:
+      - repoURL: "{{repo}}"
+        chart: "{{chart}}"
+        targetRevision: "{{version}}"
+        helm:
+          skipCrds: true # CRDs are managed by separate applicationSet
+          valueFiles:
+            - $values/gitops/apps/platform/observability/kube-prometheus-stack/values/values.yaml
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        ref: values
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: "{{namespace}}"
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
+  platform-prometheus-operator-crds:
+    appName: prometheus-operator-crds
+    syncWave: "-1"
+    project: platform
+    syncPolicy:
+      automated:
+        prune: false
+    generators:
+      - list:
+          elements:
+            - cluster: default
+              version: "v0.88.0"
+    sources:
+      - repoURL: https://github.com/prometheus-operator/prometheus-operator.git
+        targetRevision: "{{version}}"
+        path: example/prometheus-operator-crd
+    destination:
+      server: https://kubernetes.default.svc
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
+  sealed-secrets:
+    appName: sealed-secrets
+    syncWave: "0"
+    project: platform
+    generators:
+      - list:
+          elements:
+            - cluster: default
+    sources:
+      - repoURL: https://bitnami-labs.github.io/sealed-secrets
+        chart: sealed-secrets
+        targetRevision: "2.18.0"
+        helm:
+          releaseName: sealed-secrets
+          valueFiles:
+            - $values/gitops/apps/platform/sealed-secrets/values/values.yaml
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        ref: values
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: sealed-secrets
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
+  platform-traefik:
+    appName: traefik
+    syncWave: "2"
+    project: platform
+    generators:
+      - list:
+          elements:
+            - env: dev
+              name: traefik
+              namespace: traefik-dev
+              chart: traefik
+              repo: https://helm.traefik.io/traefik
+              version: "37.4.0"
+    sources:
+      - repoURL: "{{repo}}"
+        chart: "{{chart}}"
+        targetRevision: "{{version}}"
+        helm:
+          valueFiles:
+            - $values/gitops/apps/platform/traefik/values/values.yaml
+            - $values/gitops/apps/platform/traefik/values/values-{{env}}.yaml
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        ref: values
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: "{{namespace}}"
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
+  platform-resources:
+    # Dynamic name: {component}-{env} e.g. namespaces-dev, admission-policies-dev
+    appName: "{{index .path.segments 2}}-{{.path.basename}}"
+    syncWave: "1"
+    project: platform
+    generators:
+      - git:
+          repoURL: https://github.com/kurv1ts/platform-engineering.git
+          revision: main
+          directories:
+            - path: gitops/platform/*/overlays/*
+    sources:
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: "{{.path.path}}"
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: "platform-{{.path.basename}}"
+
+  team-resources:
+    # Dynamic name: {team}-{env} e.g. team-a-dev
+    appName: "{{index .path.segments 3}}-{{.path.basename}}"
+    syncWave: "1"
+    project: platform
+    generators:
+      - git:
+          repoURL: https://github.com/kurv1ts/platform-engineering.git
+          revision: main
+          directories:
+            - path: gitops/platform/teams/*/overlays/*
+    sources:
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: "{{.path.path}}"
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: "{{index .path.segments 3}}-{{.path.basename}}"

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: applicationset-workloads
+description: A Helm chart for ArgoCD WorkLoad ApplicationSets
+type: application
+version: 0.1.0
