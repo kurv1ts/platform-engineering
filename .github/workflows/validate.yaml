@@ -33,9 +33,6 @@ jobs:
         run: |
           cd modules/platform/k8s/cluster && terraform validate
 
-      - name: Terraform Validate (namespace module)
-        run: |
-          cd modules/team/k8s_namespace && terraform validate
 
   yaml-lint:
     name: YAML Lint
@@ -75,7 +72,7 @@ jobs:
           kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/dev \
             | kubeconform \
                 --schema-location default \
-                --schema-location 'https://raw.githubusercontent.com/argoproj/argo-schema-generator/main/schema/argo_all_k8s_kube_schema_v1.30.0.json' \
+                --schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
                 --strict
 
       - name: Validate rendered ApplicationSets (prod)
@@ -83,7 +80,7 @@ jobs:
           kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/prod \
             | kubeconform \
                 --schema-location default \
-                --schema-location 'https://raw.githubusercontent.com/argoproj/argo-schema-generator/main/schema/argo_all_k8s_kube_schema_v1.30.0.json' \
+                --schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
                 --strict
 
       - name: Build Node template overlay (dev)

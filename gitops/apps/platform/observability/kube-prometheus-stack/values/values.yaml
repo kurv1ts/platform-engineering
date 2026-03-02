@@ -37,7 +37,7 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
-    
+
     resources:
       requests:
         cpu: 500m
@@ -52,7 +52,7 @@ prometheus:
 grafana:
   enabled: true
   adminPassword: admin  # Change in production!
-  
+
   # Enable dashboard provisioning from ConfigMaps
   sidecar:
     dashboards:
