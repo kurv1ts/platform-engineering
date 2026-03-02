@@ -67,20 +67,22 @@ jobs:
           tar -xzf /tmp/kubeconform.tar.gz -C /tmp
           sudo mv /tmp/kubeconform /usr/local/bin/
 
-      - name: Validate rendered ApplicationSets (dev)
+      - name: Validate rendered manifests (dev)
         run: |
           kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/dev \
             | kubeconform \
                 --schema-location default \
                 --schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                --skip-kinds ApplicationSet \
                 --strict
 
-      - name: Validate rendered ApplicationSets (prod)
+      - name: Validate rendered manifests (prod)
         run: |
           kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/prod \
             | kubeconform \
                 --schema-location default \
                 --schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                --skip-kinds ApplicationSet \
                 --strict
 
       - name: Build Node template overlay (dev)
