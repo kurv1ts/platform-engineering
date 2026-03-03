@@ -7,8 +7,6 @@ argocd-apps:
         repoURL: https://github.com/kurv1ts/platform-engineering.git
         targetRevision: main
         path: gitops/argo/clusters/dev
-        kustomize:
-          buildOptions: "--load-restrictor LoadRestrictionsNone"
       destination:
         server: https://kubernetes.default.svc
         namespace: argocd
@@ -24,8 +22,6 @@ argocd-apps:
         repoURL: https://github.com/kurv1ts/platform-engineering.git
         targetRevision: main
         path: gitops/argo/clusters/prod
-        kustomize:
-          buildOptions: "--load-restrictor LoadRestrictionsNone"
       destination:
         server: https://kubernetes.default.svc
         namespace: argocd
