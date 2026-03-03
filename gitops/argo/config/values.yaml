@@ -71,6 +71,8 @@ argocd-apps:
           kind: MutatingWebhookConfiguration
         - group: admissionregistration.k8s.io
           kind: ValidatingAdmissionPolicyBinding
+        - group: admissionregistration.k8s.io
+          kind: ValidatingAdmissionPolicy
       namespaceResourceWhitelist:
         - group: "*"
           kind: "*"
