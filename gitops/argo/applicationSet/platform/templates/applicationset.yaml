@@ -19,7 +19,7 @@ spec:
     spec:
       project: {{ $app.project  }}
       sources: {{ $app.sources | toYaml | nindent 6 }}
-      destination: {{ $app.destination | toYaml | nindent 6 }}
+      destination: {{ $app.destination | toYaml | nindent 8 }}
       syncPolicy:
         retry:
           limit: 3
