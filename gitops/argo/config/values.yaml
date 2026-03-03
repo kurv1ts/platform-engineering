@@ -29,6 +29,23 @@ argocd-apps:
         # Automated sync policy is disabled intentionally
         syncOptions:
           - PruneLast=true # Any resource deletions happen only after all new resources are healthy
+    argocd-config:
+      namespace: argocd
+      project: root
+      source:
+        repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: gitops/argo/config
+        helm:
+          valueFiles:
+            - values.yaml
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+      syncPolicy:
+        # Automated sync policy is disabled intentionally
+        syncOptions:
+          - PruneLast=true
   projects:
     root:
       namespace: argocd
