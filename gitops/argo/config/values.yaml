@@ -6,7 +6,7 @@ argocd-apps:
       source:
         repoURL: https://github.com/kurv1ts/platform-engineering.git
         targetRevision: main
-        path: gitops/clusters/dev
+        path: gitops/argo/clusters/dev
       destination:
         server: https://kubernetes.default.svc
         namespace: argocd
@@ -22,7 +22,7 @@ argocd-apps:
       source:
         repoURL: https://github.com/kurv1ts/platform-engineering.git
         targetRevision: main
-        path: gitops/clusters/prod
+        path: gitops/argo/clusters/prod
       destination:
         server: https://kubernetes.default.svc
         namespace: argocd
