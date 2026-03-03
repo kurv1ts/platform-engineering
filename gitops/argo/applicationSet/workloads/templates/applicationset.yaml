@@ -19,9 +19,9 @@ spec:
     spec:
       project: {{ $app.project }}
       {{- if $app.sources }}
-      sources: {{ $app.sources | toYaml | nindent 6 }}
+      sources: {{ $app.sources | toYaml | nindent 8 }}
       {{- else }}
-      source: {{ $app.source | toYaml | nindent 6 }}
+      source: {{ $app.source | toYaml | nindent 8 }}
       {{- end }}
       destination: {{ $app.destination | toYaml | nindent 8 }}
       syncPolicy:
