@@ -23,7 +23,7 @@ spec:
       {{- else }}
       source: {{ $app.source | toYaml | nindent 6 }}
       {{- end }}
-      destination: {{ $app.destination | toYaml | nindent 6 }}
+      destination: {{ $app.destination | toYaml | nindent 8 }}
       syncPolicy:
         retry:
           limit: 3
