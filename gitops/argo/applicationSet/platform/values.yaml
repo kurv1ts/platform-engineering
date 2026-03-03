@@ -25,6 +25,53 @@ applications:
         app.kubernetes.io/part-of: platform
         app.kubernetes.io/managed-by: argocd
 
+  platform-external-secrets-crds:
+    appName: external-secrets-crds
+    syncWave: "-1"
+    project: platform
+    generators:
+    - list:
+        elements:
+          - {}
+    sources:
+      - repoURL: https://github.com/kurv1ts/platform-engineering.git
+        targetRevision: main
+        path: gitops/apps/platform/external-secrets/crds
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: external-secrets
+    syncPolicy:
+      automated:
+        prune: false
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
+  platform-external-secrets:
+    appName: external-secrets
+    syncWave: "1"
+    project: platform
+    generators:
+    - list:
+        elements:
+          - {}
+    sources:
+      - repoURL: https://charts.external-secrets.io
+        targetRevision: 2.0.1
+        chart: external-secrets
+        helm:
+          skipCrds: true # CRDs are managed by separate applicationSet
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: external-secrets
+    managedNamespaceMetadata:
+      labels:
+        owner: platform
+        app.kubernetes.io/part-of: platform
+        app.kubernetes.io/managed-by: argocd
+
   platform-kube-prometheus-stack:
     appName: kube-prometheus-stack
     syncWave: "2"
