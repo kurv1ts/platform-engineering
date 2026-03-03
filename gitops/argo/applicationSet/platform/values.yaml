@@ -86,9 +86,9 @@ applications:
               repo: https://prometheus-community.github.io/helm-charts
               version: "80.13.3"
     sources:
-      - repoURL: "{{repo}}"
-        chart: "{{chart}}"
-        targetRevision: "{{version}}"
+      - repoURL: "{{.repo}}"
+        chart: "{{.chart}}"
+        targetRevision: "{{.version}}"
         helm:
           skipCrds: true # CRDs are managed by separate applicationSet
           valueFiles:
@@ -98,7 +98,7 @@ applications:
         ref: values
     destination:
       server: https://kubernetes.default.svc
-      namespace: "{{namespace}}"
+      namespace: "{{.namespace}}"
     managedNamespaceMetadata:
       labels:
         owner: platform
@@ -119,10 +119,11 @@ applications:
               version: "v0.88.0"
     sources:
       - repoURL: https://github.com/prometheus-operator/prometheus-operator.git
-        targetRevision: "{{version}}"
+        targetRevision: "{{.version}}"
         path: example/prometheus-operator-crd
     destination:
       server: https://kubernetes.default.svc
+      namespace: "{{.namespace}}"
     managedNamespaceMetadata:
       labels:
         owner: platform
@@ -171,9 +172,9 @@ applications:
               repo: https://helm.traefik.io/traefik
               version: "37.4.0"
     sources:
-      - repoURL: "{{repo}}"
-        chart: "{{chart}}"
-        targetRevision: "{{version}}"
+      - repoURL: "{{.repo}}"
+        chart: "{{.chart}}"
+        targetRevision: "{{.version}}"
         helm:
           valueFiles:
             - $values/gitops/apps/platform/traefik/values/values.yaml
@@ -183,7 +184,7 @@ applications:
         ref: values
     destination:
       server: https://kubernetes.default.svc
-      namespace: "{{namespace}}"
+      namespace: "{{.namespace}}"
     managedNamespaceMetadata:
       labels:
         owner: platform
