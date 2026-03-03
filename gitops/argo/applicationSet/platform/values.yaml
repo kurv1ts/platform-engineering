@@ -176,7 +176,7 @@ applications:
         helm:
           valueFiles:
             - $values/gitops/apps/platform/traefik/values/values.yaml
-            - $values/gitops/apps/platform/traefik/values/values-{{env}}.yaml
+            - $values/gitops/apps/platform/traefik/values/values-{{.env}}.yaml
       - repoURL: https://github.com/kurv1ts/platform-engineering.git
         targetRevision: main
         ref: values
