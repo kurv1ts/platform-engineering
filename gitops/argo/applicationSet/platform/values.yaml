@@ -39,7 +39,6 @@ applications:
         path: gitops/apps/platform/external-secrets/crds
     destination:
       server: https://kubernetes.default.svc
-      namespace: external-secrets
     syncPolicy:
       automated:
         prune: false
@@ -123,7 +122,6 @@ applications:
         path: example/prometheus-operator-crd
     destination:
       server: https://kubernetes.default.svc
-      namespace: "{{.namespace}}"
     managedNamespaceMetadata:
       labels:
         owner: platform
