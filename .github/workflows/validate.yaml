@@ -69,7 +69,7 @@ jobs:
 
       - name: Validate rendered manifests (dev)
         run: |
-          kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/dev \
+          kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/argo/clusters/dev \
             | kubeconform \
                 -schema-location default \
                 -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
@@ -78,7 +78,7 @@ jobs:
 
       - name: Validate rendered manifests (prod)
         run: |
-          kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/clusters/prod \
+          kustomize build --enable-helm --load-restrictor LoadRestrictionsNone gitops/argo/clusters/prod \
             | kubeconform \
                 -schema-location default \
                 -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
